@@ -20,13 +20,13 @@ To run the app in its current state, you will need to be comfortable with the co
 
 We intend to build this app out for the con planning community, but we're not there yet. We'll update this readme when we're ready for users.
 
-The *Timeslots* model allows you to supply slots you'd like to fill with panels. We're not currently using datetime for this, because the system doesn't need to know these are times--it thinks of them as _slots_ to fill. For every slot other than the first slot of the day, specify a *previous slot* so that the app can tell which panelists have already done two panels in a row and need a break. *Tracks* indicates the number of panels that can be concurrently scheduled in that slot.
+The **Timeslots** model allows you to supply slots you'd like to fill with panels. We're not currently using datetime for this, because the system doesn't need to know these are times--it thinks of them as _slots_ to fill. For every slot other than the first slot of the day, specify a **previous slot** so that the app can tell which panelists have already done two panels in a row and need a break. **Tracks** indicates the number of panels that can be concurrently scheduled in that slot.
 
-The *Rooms* model is under-used at the moment, but is designed to be used when you need to assign specific panels to specific rooms--because you need that panel in your largest space, or in one of the rooms with A/V equipment, etc.
+The **Rooms** model is under-used at the moment, but is designed to be used when you need to assign specific panels to specific rooms--because you need that panel in your largest space, or in one of the rooms with A/V equipment, etc.
 
-*Panels* is where you put information about your actual panels.
+**Panels** is where you put information about your actual panels.
 
-Likewise, *Panelists* is where you put panelist info.
+Likewise, **Panelists** is where you put panelist info.
 
-The *Experiences* model allows you to set certain prerequisites for being on certain panels--for instance, for a panel about immigration, you might want to ask panelists if they have first-hand experience as an immigrant or refugee. You then attach that experience to the panel it's required for, and you add it to the relevant panelist's profiles so that the scheduler can preferentially (or, if `experience_required` is checked for the panel, exclusively) schedule panelists with the relevant experience (this isn't implemented in the scheduler yet).
+The **Experiences** model allows you to set certain prerequisites for being on certain panels--for instance, for a panel about immigration, you might want to ask panelists if they have first-hand experience as an immigrant or refugee. You then attach that experience to the panel it's required for, and you add it to the relevant panelist's profiles so that the scheduler can preferentially (or, if `experience_required` is checked for the panel, exclusively) schedule panelists with the relevant experience (this isn't implemented in the scheduler yet).
 
