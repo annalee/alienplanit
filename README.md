@@ -10,6 +10,7 @@ To run the app in its current state, you will need to be comfortable with the co
 1. Clone this repository.
 1. set the environment variable ALIENPLANIT_SECRET_KEY.
   1. We recommend using `virtualenvwrapper` and these instructions for env variable setup: https://stackoverflow.com/a/11134336
+1. Install project requirements from requirements.txt (`pip install -r requirements.txt` should do the trick).
 1. From the project's root directory, run `python manage.py createsuperuser` and follow the prompts to create a user account.
 1. run `python manage.py migrate` to apply migrations.
 1. run `python manage.py runserver` and got to http://127.0.0.1:8000/ to see the app in action.
