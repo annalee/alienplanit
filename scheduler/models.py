@@ -27,7 +27,7 @@ class Timeslot(models.Model):
         help_text="Format: <em>10AM</em>.")
     # previous will be used to make sure we're not scheduling panelists
     # for more than two panels in a row.
-    previous_slot = models.ForeignKey('self', unique=True, null=True,
+    previous_slot = models.OneToOneField('self', null=True,
         blank=True, on_delete=models.SET_NULL, related_name="next_slot")
     tracks = models.IntegerField(default=3,
         help_text="Number of rooms available to us in this slot.")
@@ -60,11 +60,12 @@ class Experience(models.Model):
 class Panelist(models.Model):
     # this model contains some biographical info so we can avoid 'randomly'
     # creating all-white and all-male panels.
+    email = models.CharField(max_length=280)
     badge_name = models.CharField(max_length=280)
     pronouns = models.CharField(max_length=280)
     a11y = models.TextField(blank=True)
     experience = models.ManyToManyField(Experience, blank=True)
-    person_of_color = models.BooleanField(default=False)
+    white = models.BooleanField(default=True)
     man = models.BooleanField(default=False)
     sched_sent = models.BooleanField(default=False)
 
