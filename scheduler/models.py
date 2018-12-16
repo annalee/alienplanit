@@ -75,6 +75,7 @@ class Panelist(models.Model):
 
 class Panel(models.Model):
     title = models.CharField(max_length=280)
+    description = models.TextField(blank=True, null=True)
     timeslot = models.ForeignKey(Timeslot,
         blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
     av_required = models.BooleanField()
