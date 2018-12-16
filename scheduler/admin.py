@@ -6,12 +6,12 @@ from .models import Timeslot, Room, Experience, Panelist, Panel
 @admin.register(Panel)
 class PanelAdmin(admin.ModelAdmin):
     list_display = ["title", "timeslot", "room", "experience_check", "pro_track"]
-    filter_by = ["experience_check"]
+    filter_by = ["experience_check", "pro_track"]
     search_fields = ['title']
     ordering = ["title"]
     fieldsets = (
         ("Panel Information", {
-            'fields': ("title", "timeslot", "room", "experience")
+            'fields': ("title", "description", "timeslot", "room", "experience")
             }),
         ("Requirements", {
             'fields': ('av_required', 'experience_required', 'pro_track')
