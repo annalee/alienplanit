@@ -83,10 +83,14 @@ class Panel(models.Model):
         blank=True, null=True, on_delete=models.SET_NULL)
     interested_panelists = models.ManyToManyField(
         Panelist, related_name="interested", blank=True)
+    interested_moderators = models.ManyToManyField(
+        Panelist, related_name="interested_mod", blank=True)
     required_panelists = models.ManyToManyField(
         Panelist, related_name="required_for", blank=True)
     final_panelists = models.ManyToManyField(
         Panelist, related_name="panels", blank=True)
+    moderator = models.ForeignKey(Panelist,
+        blank=True, null=True, on_delete=models.SET_NULL, related_name="moderating")
     experience = models.ManyToManyField(Experience, blank=True)
     experience_required = models.BooleanField(default=False)
     pro_track = models.BooleanField(default=False)
