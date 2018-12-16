@@ -94,6 +94,7 @@ class Panel(models.Model):
     experience = models.ManyToManyField(Experience, blank=True)
     experience_required = models.BooleanField(default=False)
     pro_track = models.BooleanField(default=False)
+    locked = models.BooleanField(default=False)
 
     def experience_check(self):
         if self.experience.exists():
