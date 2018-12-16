@@ -28,8 +28,11 @@ class PanelAdmin(admin.ModelAdmin):
                          "experience"]
 
 
-class Panel1Inline(admin.TabularInline):
-    model = Panel.final_panelists.through
+class PanelIntPanInline(admin.TabularInline):
+    model = Panel.interested_panelists.through
+
+class PanelIntModInline(admin.TabularInline):
+    model = Panel.interested_moderators.through
 
 class PanelInline(admin.TabularInline):
     model = Panel
@@ -48,10 +51,10 @@ class TimeslotAdmin(admin.ModelAdmin):
 
 @admin.register(Panelist)
 class PanelistAdmin(admin.ModelAdmin):
-    list_display = ["badge_name", "pronouns", "sched_sent", "white"]
+    list_display = ["email", "badge_name", "pronouns", "sched_sent", "white"]
     filter_horizontal = ["experience",]
-    search_fields = ['badge_name']
-    inlines = [Panel1Inline,]
+    search_fields = ['email', 'badge_name']
+    inlines = [PanelIntPanInline, PanelIntModInline]
     list_editable = ["sched_sent"]
 
 scheduler_models = [Room, Experience]
