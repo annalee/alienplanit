@@ -41,6 +41,7 @@ class Timeslot(models.Model):
 
 class Room(models.Model):
     name = models.CharField(max_length=20, blank=True)
+    capacity = models.IntegerField(help_text="Audience capacity.")
     av = models.BooleanField()
 
     def __str__(self):
