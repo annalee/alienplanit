@@ -109,3 +109,6 @@ class Panel(models.Model):
     def __str__(self):
         return self.title + ', ' + self.timeslot.__str__()
 
+    class Meta:
+        unique_together = ("room", "timeslot")
+
