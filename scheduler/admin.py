@@ -11,18 +11,26 @@ class PanelAdmin(admin.ModelAdmin):
     ordering = ["title"]
     fieldsets = (
         ("Panel Information", {
-            'fields': ("title", "description", "timeslot", "room", "experience")
+            'fields': ("title",
+                       "description",
+                       "timeslot",
+                       "room",
+                       "locked",
+                       "experience")
             }),
         ("Requirements", {
             'fields': ('av_required', 'experience_required', 'pro_track')
             }),
         ("Panelists", {
             'fields': ("interested_panelists",
+                       "interested_moderators",
                        "required_panelists",
-                       "final_panelists")
+                       "final_panelists",
+                       "moderator")
             }),
         )
     filter_horizontal = ["interested_panelists",
+                         "interested_moderators",
                          "required_panelists",
                          "final_panelists",
                          "experience"]
