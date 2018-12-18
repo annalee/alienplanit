@@ -80,6 +80,7 @@ class Panel(models.Model):
     timeslot = models.ForeignKey(Timeslot,
         blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
     av_required = models.BooleanField()
+    roomsize = models.IntegerField(help_text="How many audience seats should the room have?")
     room = models.ForeignKey(Room,
         blank=True, null=True, on_delete=models.SET_NULL)
     interested_panelists = models.ManyToManyField(

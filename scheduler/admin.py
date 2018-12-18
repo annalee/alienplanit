@@ -19,7 +19,10 @@ class PanelAdmin(admin.ModelAdmin):
                        "experience")
             }),
         ("Requirements", {
-            'fields': ('av_required', 'experience_required', 'pro_track')
+            'fields': ('av_required',
+                       'roomsize',
+                       'experience_required',
+                       'pro_track')
             }),
         ("Panelists", {
             'fields': ("interested_panelists",
