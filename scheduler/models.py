@@ -40,8 +40,19 @@ class Timeslot(models.Model):
 
 
 class Room(models.Model):
+    PANEL = 'panel'
+    READING = 'reading'
+    SPECIAL = 'special'
+    CATEGORY_CHOICES = (
+        (PANEL, 'panel'),
+        (READING, 'reading'),
+        (SPECIAL, 'special'),
+    )
     name = models.CharField(max_length=20, blank=True)
     capacity = models.IntegerField(help_text="Audience capacity.")
+    category = models.CharField(
+        max_length=10, blank=True,
+        choices=CATEGORY_CHOICES)
     av = models.BooleanField()
 
     def __str__(self):
@@ -108,4 +119,7 @@ class Panel(models.Model):
 
     def __str__(self):
         return self.title + ', ' + self.timeslot.__str__()
+
+    class Meta:
+        unique_together = ("room", "timeslot")
 

@@ -62,7 +62,7 @@ class TimeslotAdmin(admin.ModelAdmin):
 
 @admin.register(Panelist)
 class PanelistAdmin(admin.ModelAdmin):
-    list_display = ["email", "badge_name", "pronouns", "sched_sent", "white"]
+    list_display = ["badge_name", "email", "pronouns", "sched_sent", "white"]
     filter_horizontal = ["experience",]
     search_fields = ['email', 'badge_name']
     inlines = [PanelIntPanInline, PanelIntModInline]
