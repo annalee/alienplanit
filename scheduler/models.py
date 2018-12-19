@@ -76,6 +76,8 @@ class Panelist(models.Model):
     badge_name = models.CharField(max_length=280)
     pronouns = models.CharField(max_length=280)
     a11y = models.TextField(blank=True)
+    inarow = models.IntegerField(default=2,
+        help_text="Number of panels this person can do in a row.")
     experience = models.ManyToManyField(Experience, blank=True)
     white = models.BooleanField(default=True)
     man = models.BooleanField(default=False)
