@@ -68,7 +68,12 @@ class PanelistAdmin(admin.ModelAdmin):
     inlines = [PanelIntPanInline, PanelIntModInline]
     list_editable = ["sched_sent"]
 
-scheduler_models = [Room, Experience]
+@admin.register(Room)
+class RoomAdmin(admin.ModelAdmin):
+    list_display = ["name", "capacity", "category", "av"]
+    list_editable = ["capacity", "category", "av"]
+
+scheduler_models = [Experience]
 admin.site.register(scheduler_models)
 
 
