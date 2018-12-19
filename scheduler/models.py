@@ -95,7 +95,7 @@ class Panel(models.Model):
     av_required = models.BooleanField()
     roomsize = models.IntegerField(help_text="How many audience seats should the room have?")
     room = models.ForeignKey(Room,
-        blank=True, null=True, on_delete=models.SET_NULL)
+        blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
     interested_panelists = models.ManyToManyField(
         Panelist, related_name="interested", blank=True)
     interested_moderators = models.ManyToManyField(
