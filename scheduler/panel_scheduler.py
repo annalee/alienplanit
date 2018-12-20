@@ -105,26 +105,41 @@ def add_a_compatible_panel(slotted_panels, available_panels1, need_break,
     return slotted_panels
 
 def get_break_needed(timeslot):
-    if timeslot.previous_slot and timeslot.previous_slot.previous_slot:
-        # Gonna be running a ton of queries here, but the tables are too small
-        # to be worth optimizing.
+    need_break = []
+    last_hour = timeslot.previous_slot
+    if last_hour:
+        last_hour_panels = Panel.objects.filter(timeslot=last_hour)
+        last_hour_panelists = Panelist.objects.filter(
+                                               panels__in=last_hour_panels)
 
-        last_hour = Panel.objects.filter(timeslot=timeslot.previous_slot)
-        previous_hour = Panel.objects.filter(
-            timeslot=timeslot.previous_slot.previous_slot)
-
-        need_break = Panelist.objects.filter(
-            Q(required_for__in=last_hour) &
-            Q(required_for__in=previous_hour))
-    else: need_break = []
+        for person in last_hour_panelists:
+            if person.inarow == 1:
+                need_break.append(person)
+                continue
+            hour = last_hour.previous_slot
+            if not hour:
+                continue
+                # We're reached the beginning of the day before hitting
+                # the panelist's limit.
+            for x in range(1, person.inarow):
+                working = person.panels.filter(timeslot=hour)
+                if not working:
+                    #They took a break
+                    break
+                if x == person.inarow - 1:
+                    # this is the last hour in their limit and they've worked
+                    # all of them, so they need a break.
+                    need_break.append(person)
+                hour = hour.previous_slot
 
     return need_break
 
 
 def schedule_panels():
-    return "Nope."
     for timeslot in Timeslot.objects.all():
-        if timeslot.panels.count() == timeslot.tracks:
+        #skip already-full slots
+        if timeslot.panels.count() >= timeslot.tracks:
+            print(timeslot, " is full. Skipping.")
             continue
         print("scheduling ", timeslot)
 
@@ -161,25 +176,28 @@ def schedule_panels():
 
         for panel in slotted_panels:
             panel.timeslot = timeslot
-            panel.room = Room.objects.get(id=slotted_panels.index(panel) + 1)
+            rooms = Room.objects.filter(
+                category=Room.PANEL).exclude(panels__timeslot=timeslot)
+            panel.room = rooms.first()
             panel.save()
 
         print(timeslot, "scheduled. Let's add some panelists.")
 
         for panel in slotted_panels:
-            for panelist in panel.required_panelists.all()
+            for panelist in panel.required_panelists.all():
                 panel.final_panelists.add(panelist)
-            total = panel.final_panelists.count()
-            if total < 5:
-                remaining = 5 - total
-                bench_ids = [x.id for x in panel.interested_panelists.all() if x not in need_break]
-                chosen = panel.interested_panelists.annotate(
-                    num_interested=Count('interested'), num_scheduled=Count(
-                    'panels')).exclude(id__in=bench_ids, num_scheduled__gt=5).order_by(
-                    'num_interested', 'num_scheduled')[:remaining]
-                for panelist in chosen:
-                    panelist.panels.add(panel)
-                    panelist.save()
+            if not panel.locked:
+                total = panel.final_panelists.count()
+                if total < 4:
+                    remaining = 4 - total
+                    bench_ids = [x.id for x in panel.interested_panelists.all() if x not in need_break]
+                    chosen = panel.interested_panelists.annotate(
+                        num_interested=Count('interested'), num_scheduled=Count(
+                        'panels')).exclude(id__in=bench_ids, num_scheduled__gt=5).order_by(
+                        'num_interested', 'num_scheduled')[:remaining]
+                    for panelist in chosen:
+                        panelist.panels.add(panel)
+                        panelist.save()
             panel.save()
 
 
