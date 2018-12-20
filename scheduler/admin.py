@@ -5,7 +5,7 @@ from .models import Timeslot, Room, Experience, Panelist, Panel
 
 @admin.register(Panel)
 class PanelAdmin(admin.ModelAdmin):
-    list_display = ["title", "timeslot", "room", "experience_check", "pro_track"]
+    list_display = ["title", "moderator", "timeslot", "room", "experience_check", "pro_track"]
     filter_by = ["experience_check", "pro_track"]
     search_fields = ['title']
     ordering = ["title"]
@@ -58,6 +58,9 @@ class TimeslotAdmin(admin.ModelAdmin):
     list_editable = ["day", "time", "previous_slot", "tracks"]
     list_display_links = ["__str__"]
     inlines = [PanelInline,]
+
+    class Meta:
+        ordering = ["day", "time"]
 
 
 @admin.register(Panelist)
