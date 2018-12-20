@@ -187,14 +187,27 @@ def schedule_panels():
             for panelist in panel.required_panelists.all():
                 panel.final_panelists.add(panelist)
             if not panel.locked:
+                if not panel.moderator:
+                    panel.moderator = panel.interested_moderators.annotate(
+                        num_interested=Count('interested_mod'),
+                        num_scheduled=Count('panels')+Count('moderating'),
+                        num_moderating=Count('moderating')).exclude(
+                            id__in=bench_ids,
+                            num_scheduled__gt=5,
+                            num_moderating__gt=2,
+                        ).order_by(
+                        'num_interested', 'num_scheduled').first()
                 total = panel.final_panelists.count()
                 if total < 4:
                     remaining = 4 - total
                     bench_ids = [x.id for x in panel.interested_panelists.all() if x not in need_break]
                     chosen = panel.interested_panelists.annotate(
-                        num_interested=Count('interested'), num_scheduled=Count(
-                        'panels')).exclude(id__in=bench_ids, num_scheduled__gt=5).order_by(
-                        'num_interested', 'num_scheduled')[:remaining]
+                        num_interested=Count('interested'),
+                        num_scheduled=Count('panels')+Count('moderating')
+                        ).exclude(
+                            id__in=bench_ids, num_scheduled__gt=5
+                        ).order_by(
+                            'num_interested', 'num_scheduled')[:remaining]
                     for panelist in chosen:
                         panelist.panels.add(panel)
                         panelist.save()
