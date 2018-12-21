@@ -1,5 +1,12 @@
 from django.db import models
 
+class Conference(models.Model):
+    slug = models.SlugField(max_length=50)
+    name = models.CharField(max_length=280)
+
+    def __str__(self):
+        return self.slug
+
 class Timeslot(models.Model):
     # We're not using datetime for this because the system doesn't actually need
     # to know these are dates and times, and I don't hate myself.
@@ -19,14 +26,13 @@ class Timeslot(models.Model):
         (SATURDAY, 'Saturday'),
         (SUNDAY, 'Sunday'),
     )
-    day = models.CharField(
-        max_length=4, blank=True,
-        choices=DAY_CHOICES)
-    time = models.CharField(
-        max_length=10, blank=True,
-        help_text="Format: <em>10AM</em>.")
+    conference = models.ForeignKey(Conference,
+        null=True, on_delete=models.SET_NULL, related_name="timeslots")
+    day = models.CharField(max_length=4, blank=True, choices=DAY_CHOICES)
+    time = models.CharField(max_length=10, blank=True,
+                            help_text="Format: <em>10AM</em>.")
     # previous will be used to make sure we're not scheduling panelists
-    # for more than two panels in a row.
+    # for too many panels in a row.
     previous_slot = models.OneToOneField('self', null=True,
         blank=True, on_delete=models.SET_NULL, related_name="next_slot")
     tracks = models.IntegerField(default=3,
@@ -48,11 +54,12 @@ class Room(models.Model):
         (READING, 'reading'),
         (SPECIAL, 'special'),
     )
+    conference = models.ForeignKey(Conference,
+        null=True, on_delete=models.SET_NULL, related_name="rooms")
     name = models.CharField(max_length=20, blank=True)
     capacity = models.IntegerField(help_text="Audience capacity.")
     category = models.CharField(
-        max_length=10, blank=True,
-        choices=CATEGORY_CHOICES)
+        max_length=10, blank=True, choices=CATEGORY_CHOICES)
     av = models.BooleanField()
 
     def __str__(self):
@@ -64,6 +71,8 @@ class Experience(models.Model):
     # life experience, or require that experience, for some panels.
     name = models.CharField(max_length=100)
     description = models.CharField(max_length=280, blank=True, null=True)
+    conference = models.ForeignKey(Conference,
+        null=True, on_delete=models.SET_NULL, related_name="experiences")
 
     def __str__(self):
         return self.name
@@ -74,6 +83,8 @@ class Panelist(models.Model):
     # creating all-white and all-male panels.
     email = models.CharField(max_length=280)
     badge_name = models.CharField(max_length=280)
+    conference = models.ForeignKey(Conference,
+        null=True, on_delete=models.SET_NULL, related_name="panelists")
     pronouns = models.CharField(max_length=280)
     a11y = models.TextField(blank=True)
     inarow = models.IntegerField(default=2,
@@ -90,10 +101,13 @@ class Panelist(models.Model):
 class Panel(models.Model):
     title = models.CharField(max_length=280)
     description = models.TextField(blank=True, null=True)
+    conference = models.ForeignKey(Conference,
+        null=True, on_delete=models.SET_NULL, related_name="panels")
     timeslot = models.ForeignKey(Timeslot,
         blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
     av_required = models.BooleanField()
-    roomsize = models.IntegerField(help_text="How many audience seats should the room have?")
+    roomsize = models.IntegerField(
+        help_text="How many audience seats should the room have?")
     room = models.ForeignKey(Room,
         blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
     interested_panelists = models.ManyToManyField(
@@ -104,12 +118,13 @@ class Panel(models.Model):
         Panelist, related_name="required_for", blank=True)
     final_panelists = models.ManyToManyField(
         Panelist, related_name="panels", blank=True)
-    moderator = models.ForeignKey(Panelist,
-        blank=True, null=True, on_delete=models.SET_NULL, related_name="moderating")
+    moderator = models.ForeignKey(Panelist, blank=True, null=True,
+        on_delete=models.SET_NULL, related_name="moderating")
     experience = models.ManyToManyField(Experience, blank=True)
     experience_required = models.BooleanField(default=False)
     pro_track = models.BooleanField(default=False)
-    locked = models.BooleanField(default=False)
+    panelists_locked = models.BooleanField(default=False)
+
 
     def experience_check(self):
         if self.experience.exists():
