@@ -32,19 +32,21 @@ def check_bench(potential_panels, need_break):
             available_panels.append(panel)
     return available_panels
 
-def get_small_panels_first(exclusions, need_break):
+def get_small_panels_first(conference, exclusions, need_break, slotted_panels):
 
     potential_panels = Panel.objects.annotate(
-            num_interested = Count('interested_panelists')).filter(
-            timeslot__isnull=True, num_interested__lt=6).exclude(
-            exclusions)
+            num_interested = Count('interested_panelists')
+            ).filter(conference=conference,
+                     timeslot__isnull=True,
+                     num_interested__lt=6
+            ).exclude(exclusions)
 
     available_panels = check_bench(potential_panels, need_break)
 
     # If no small panel fits...
     if not available_panels:
         potential_panels = Panel.objects.filter(
-            timeslot__isnull=True).exclude(exclusions)
+            conference=conference, timeslot__isnull=True).exclude(exclusions)
 
         available_panels = check_bench(potential_panels, need_break)
 
@@ -52,25 +54,32 @@ def get_small_panels_first(exclusions, need_break):
 
 def get_compatible_panels(slotted_panels, available_panels2, tracks, need_break):
     # we need to make sure there isn't too much overlap in interested panelists
-    # to schedule two panels side-by-side.
+    # to schedule two panels side-by-side. Excluding locked panels because
+    # they're weird.
     existing_panelists = []
+    locked = 0
     on_break_ids = [x.id for x in need_break]
 
     for panel in slotted_panels:
-        existing_panelists += list(panel.interested_panelists.exclude(
-                                   id__in=on_break_ids))
+        if panel.panelists_locked:
+            locked +=1
+            continue
+        existing_panelists += panel.interested_panelists.exclude(
+                                   id__in=on_break_ids).count()
 
     compatible_panels = []
     for panel in available_panels2:
-        panelists2 = list(panel.interested_panelists.exclude(
-                          id__in=on_break_ids))
-        if len(set(existing_panelists + panelists2)) >= tracks * 4:
+        if panel.panelists_locked:
+            compatible_panels.append(panel)
+            continue
+        panelists2 = panel.interested_panelists.exclude(id__in=on_break_ids)
+        if existing_panelists + panelists2.count() >= (tracks - locked) * 5:
             compatible_panels.append(panel)
     return compatible_panels
 
 
-def add_a_compatible_panel(slotted_panels, available_panels1, need_break,
-                         exclusions, tracks):
+def add_a_compatible_panel(conference, slotted_panels, available_panels1,
+                            need_break, exclusions, tracks):
     smallpanel = False
     for panel in slotted_panels:
         if panel.interested_panelists.count() < 6:
@@ -81,9 +90,10 @@ def add_a_compatible_panel(slotted_panels, available_panels1, need_break,
     if smallpanel:
         available_panels2 = Panel.objects.annotate(
             num_interested = Count('interested_panelists')).filter(
-            timeslot__isnull=True, num_interested__gt=5).exclude(exclusions)
+            conference=conference, timeslot__isnull=True, num_interested__gt=5
+            ).exclude(exclusions)
     else:
-        available_panels2 = Panel.objects.filter(
+        available_panels2 = Panel.objects.filter(conference=conference,
             timeslot__isnull=True).exclude(exclusions)
 
     compatible_panels = get_compatible_panels(slotted_panels, available_panels2,
@@ -92,7 +102,7 @@ def add_a_compatible_panel(slotted_panels, available_panels1, need_break,
     if not compatible_panels:
         for panel in available_panels1:
             slotted_panels[0] = panel
-            available_panels2 = Panel.objects.filter(
+            available_panels2 = Panel.objects.filter(conference=conference,
                 timeslot__isnull=True).exclude(exclusions)
             compatible_panels = get_compatible_panels(slotted_panels,
                                                       available_panels2,
@@ -135,20 +145,22 @@ def get_break_needed(timeslot):
     return need_break
 
 
-def schedule_panels():
-    for timeslot in Timeslot.objects.all():
+def schedule_panels(conference):
+    for timeslot in Timeslot.objects.filter(conference=conference):
         #skip already-full slots
         if timeslot.panels.count() >= timeslot.tracks:
             print(timeslot, " is full. Skipping.")
             continue
         print("scheduling ", timeslot)
 
-        need_break= get_break_needed(timeslot)
-        exclusions = Q(required_panelists__in=need_break)
 
         slotted_panels = list(timeslot.panels.all())
+        need_break= get_break_needed(timeslot)
+        exclusions = Q(required_panelists__in=need_break)
+        exclusions |= Q(required_panelists__panels__in=slotted_panels)
 
-        available_panels1 = get_small_panels_first(exclusions, need_break)
+        available_panels1 = get_small_panels_first(conference,
+            exclusions, need_break, slotted_panels)
         if not slotted_panels:
             # Let's try to put small panels in slot 1
 
@@ -158,7 +170,7 @@ def schedule_panels():
 
             slotted_panels.append(randomize_panel(available_panels1))
 
-        for slot in range(len(slotted_panels), timeslot.tracks):
+        for track in range(len(slotted_panels), timeslot.tracks + 1):
             for panel in slotted_panels:
                 exclusions |= Q(
                     required_panelists__in=panel.required_panelists.all())
@@ -166,19 +178,20 @@ def schedule_panels():
                     final_panelists__in=panel.required_panelists.all())
 
             #need to regen available panels 1
-            slotted_panels = add_a_compatible_panel(
+            slotted_panels = add_a_compatible_panel(conference,
                 slotted_panels, available_panels1, need_break,
                 exclusions, timeslot.tracks)
 
-            if len(slotted_panels) < slot + 1:
+            if len(slotted_panels) < track + 1:
                 print("Nothing else fits in this slot. Moving on.")
                 break
 
         for panel in slotted_panels:
             panel.timeslot = timeslot
-            rooms = Room.objects.filter(
-                category=Room.PANEL).exclude(panels__timeslot=timeslot)
-            panel.room = rooms.first()
+            if not panel.room:
+                rooms = Room.objects.filter(conference=conference,
+                    category=Room.PANEL).exclude(panels__timeslot=timeslot)
+                panel.room = rooms.first()
             panel.save()
 
         print(timeslot, "scheduled. Let's add some panelists.")
@@ -186,26 +199,30 @@ def schedule_panels():
         for panel in slotted_panels:
             for panelist in panel.required_panelists.all():
                 panel.final_panelists.add(panelist)
-            if not panel.locked:
+            if not panel.panelists_locked:
+                need_break_ids = [x.id for x in need_break]
+                bench_ids = [x.id for x in panel.interested_panelists.all(
+                                ) if x not in need_break]
+
                 if not panel.moderator:
                     panel.moderator = panel.interested_moderators.annotate(
                         num_interested=Count('interested_mod'),
                         num_scheduled=Count('panels')+Count('moderating'),
                         num_moderating=Count('moderating')).exclude(
-                            id__in=bench_ids,
-                            num_scheduled__gt=5,
-                            num_moderating__gt=2,
+                            Q(id__in=need_break_ids) |
+                            Q(num_moderating__gte=2) |
+                            Q(num_scheduled__gte=5)
                         ).order_by(
                         'num_interested', 'num_scheduled').first()
                 total = panel.final_panelists.count()
                 if total < 4:
                     remaining = 4 - total
-                    bench_ids = [x.id for x in panel.interested_panelists.all() if x not in need_break]
                     chosen = panel.interested_panelists.annotate(
                         num_interested=Count('interested'),
-                        num_scheduled=Count('panels')+Count('moderating')
-                        ).exclude(
-                            id__in=bench_ids, num_scheduled__gt=5
+                        num_scheduled=Count('panels') +Count('moderating')
+                        ).exclude(Q(id__in=need_break_ids) |
+                                  Q(moderating=panel) |
+                                  Q(num_scheduled__gte=5)
                         ).order_by(
                             'num_interested', 'num_scheduled')[:remaining]
                     for panelist in chosen:
