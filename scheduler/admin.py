@@ -1,21 +1,30 @@
 from django.contrib import admin
 
-from .models import Timeslot, Room, Experience, Panelist, Panel
+from .models import Timeslot, Room, Experience, Panelist, Panel, Conference
 
 
 @admin.register(Panel)
 class PanelAdmin(admin.ModelAdmin):
-    list_display = ["title", "moderator", "timeslot", "room", "experience_check", "pro_track"]
-    filter_by = ["experience_check", "pro_track"]
+    list_display = ["title",
+                    "moderator",
+                    "timeslot",
+                    "room",
+                    "pro_track",
+                    "panelists_locked",
+                    ]
+    list_editable = ["room", "panelists_locked",]
+    list_filter = ["pro_track", "conference"]
     search_fields = ['title']
     ordering = ["title"]
+    readonly_fields = ["conference"]
     fieldsets = (
         ("Panel Information", {
             'fields': ("title",
                        "description",
+                       "conference",
                        "timeslot",
                        "room",
-                       "locked",
+                       "panelists_locked",
                        "experience")
             }),
         ("Requirements", {
@@ -36,7 +45,7 @@ class PanelAdmin(admin.ModelAdmin):
                          "interested_moderators",
                          "required_panelists",
                          "final_panelists",
-                         "experience"]
+                         "experience",]
 
 
 class PanelIntPanInline(admin.TabularInline):
@@ -76,7 +85,7 @@ class RoomAdmin(admin.ModelAdmin):
     list_display = ["name", "capacity", "category", "av"]
     list_editable = ["capacity", "category", "av"]
 
-scheduler_models = [Experience]
+scheduler_models = [Experience, Conference]
 admin.site.register(scheduler_models)
 
 
