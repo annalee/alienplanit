@@ -42,7 +42,7 @@ class Timeslot(models.Model):
         return self.day + ' ' + self.time
 
     class Meta:
-        unique_together = ("day", "time")
+        unique_together = ("day", "time", "conference")
 
 
 class Room(models.Model):
@@ -63,7 +63,7 @@ class Room(models.Model):
     av = models.BooleanField()
 
     def __str__(self):
-        return self.name
+        return str(self.conference) + ': ' + self.name
 
 
 class Experience(models.Model):
