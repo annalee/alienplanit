@@ -12,7 +12,7 @@ class PanelAdmin(admin.ModelAdmin):
                     "pro_track",
                     "panelists_locked",
                     ]
-    list_editable = ["room", "panelists_locked",]
+    list_editable = ["panelists_locked",]
     list_filter = ["pro_track", "conference"]
     search_fields = ['title']
     ordering = ["title"]
@@ -54,18 +54,23 @@ class PanelIntPanInline(admin.TabularInline):
 class PanelIntModInline(admin.TabularInline):
     model = Panel.interested_moderators.through
 
+class PanelFinalPanInline(admin.TabularInline):
+    model = Panel.final_panelists.through
+
 class PanelInline(admin.TabularInline):
     model = Panel
-    fields = ["title", "final_panelists"]
-    filter_horizontal = ["final_panelists"]
+    fields = ["title", "moderator", "final_panelists"]
+    readonly_fields = ["room", "timeslot", "final_panelists"]
     extra = 1
 
 
 @admin.register(Timeslot)
 class TimeslotAdmin(admin.ModelAdmin):
     list_display = ["__str__", "day", "time", "previous_slot", "tracks"]
-    list_editable = ["day", "time", "previous_slot", "tracks"]
+    list_editable = ["tracks"]
+    readonly_fields = ["conference"]
     list_display_links = ["__str__"]
+    list_filter = ["conference"]
     inlines = [PanelInline,]
 
     class Meta:
@@ -77,13 +82,17 @@ class PanelistAdmin(admin.ModelAdmin):
     list_display = ["badge_name", "email", "pronouns", "sched_sent", "white"]
     filter_horizontal = ["experience",]
     search_fields = ['email', 'badge_name']
-    inlines = [PanelIntPanInline, PanelIntModInline]
+    inlines = [PanelFinalPanInline, PanelInline]
     list_editable = ["sched_sent"]
+    readonly_fields = ["conference"]
+    list_filter = ["conference"]
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
     list_display = ["name", "capacity", "category", "av"]
     list_editable = ["capacity", "category", "av"]
+    readonly_fields = ["conference"]
+    list_filter = ["conference"]
 
 scheduler_models = [Experience, Conference]
 admin.site.register(scheduler_models)
