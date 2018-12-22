@@ -39,7 +39,7 @@ class Timeslot(models.Model):
         help_text="Number of rooms available to us in this slot.")
 
     def __str__(self):
-        return self.day + ' ' + self.time
+        return self.day + ' ' + self.time + ' ' + self.conference.slug
 
     class Meta:
         unique_together = ("day", "time", "conference")
@@ -138,5 +138,5 @@ class Panel(models.Model):
         return self.title + ', ' + self.timeslot.__str__()
 
     class Meta:
-        unique_together = ("room", "timeslot")
+        unique_together = ("room", "timeslot", "conference")
 
