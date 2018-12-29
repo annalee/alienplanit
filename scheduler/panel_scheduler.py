@@ -7,7 +7,7 @@ from random import randint
 
 def export_schedule(conference):
     with open("schedule.tsv", "w") as text_file:
-        row = "Day" + "\t" + "Time"
+        row = "Day\t" + "Time\t"
         for room in [x.name for x in conference.rooms.order_by('id')]:
             row += room + "\t"
         row += "\n"
@@ -16,15 +16,16 @@ def export_schedule(conference):
         for slot in Timeslot.objects.filter(conference=conference):
             row = slot.get_day_display() + "\t" + slot.time
             for room in conference.rooms.order_by('id'):
-                row += "\t" + "Room: " + room.name
+                row += "\t"
                 panel = room.panels.filter(timeslot=slot).first()
                 if panel:
                     row += " Title: " + panel.title
-                    row += " Moderator: " + str(panel.moderator)
-                    row += " Panelists:"
+                    row += " Panelists: "
+                    if panel.moderator:
+                       row += str(panel.moderator) + " (M)"
                     panelists = [p.badge_name for p in panel.final_panelists.all()]
                     for panelist in panelists:
-                        row += " " + panelist
+                        row += ", " + panelist
             row += "\n"
             text_file.write(row)
         text_file.close()
@@ -190,7 +191,7 @@ def schedule_panels(conference):
 
             slotted_panels.append(randomize_panel(available_panels1))
 
-        for track in range(len(slotted_panels), timeslot.tracks + 1):
+        for track in range(len(slotted_panels), timeslot.tracks +1):
             for panel in slotted_panels:
                 exclusions |= Q(
                     required_panelists__in=panel.required_panelists.all())
@@ -228,7 +229,8 @@ def schedule_panels(conference):
 
         for panel in slotted_panels:
             for panelist in panel.required_panelists.all():
-                panel.final_panelists.add(panelist)
+                if panel not in panelist.moderating.all():
+                    panel.final_panelists.add(panelist)
             if not panel.panelists_locked:
                 need_break_ids = [x.id for x in need_break]
                 bench_ids = [x.id for x in panel.interested_panelists.all(
@@ -240,10 +242,12 @@ def schedule_panels(conference):
                         num_scheduled=Count('panels')+Count('moderating'),
                         num_moderating=Count('moderating')).exclude(
                             Q(id__in=need_break_ids) |
-                            Q(num_moderating__gte=2) |
+                            Q(num_moderating__gte=3) |
                             Q(num_scheduled__gte=5)
                         ).order_by(
-                        'num_interested', 'num_scheduled').first()
+                        'num_moderating', 'num_scheduled', 'num_interested',).first()
+                    if not panel.moderator:
+                        print("Couldn't find a moderator for", panel.title)
                 total = panel.final_panelists.count()
                 if total < 4:
                     remaining = 4 - total
@@ -263,3 +267,28 @@ def schedule_panels(conference):
 
     return "Done!"
 
+def schedule_readings(conference, room):
+    reading_ids = []
+    for timeslot in Timeslot.objects.filter(conference=conference,
+                                         reading_slots__gte=1):
+        need_break_ids = [x.id for x in get_break_needed(timeslot)]
+        readers = Panelist.objects.filter(
+            reading_requested=True).exclude(
+            id__in=reading_ids).exclude(
+            id__in=need_break_ids)[:3]
+
+        title = "Reading: "
+        for reader in readers:
+            title += reader.badge_name
+            title += ", "
+        groupreading = Panel.objects.create(conference=conference,
+                             title=title,
+                             timeslot=timeslot,
+                             room=room,
+                             av_required=False,
+                             roomsize = 25)
+        groupreading.final_panelists.set(readers)
+        groupreading.save()
+
+        reading_ids.extend([x.id for x in readers])
+        print("Scheduled", groupreading.title, "on", timeslot.day, "at", timeslot.time)

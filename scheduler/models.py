@@ -37,6 +37,8 @@ class Timeslot(models.Model):
         blank=True, on_delete=models.SET_NULL, related_name="next_slot")
     tracks = models.IntegerField(default=3,
         help_text="Number of rooms available to us in this slot.")
+    reading_slots = models.IntegerField(default=3,
+        help_text="Number of readings available this slot.")
 
     def __str__(self):
         return self.day + ' ' + self.time + ' ' + self.conference.slug
@@ -93,6 +95,7 @@ class Panelist(models.Model):
     white = models.BooleanField(default=True)
     man = models.BooleanField(default=False)
     sched_sent = models.BooleanField(default=False)
+    reading_requested = models.BooleanField(default=False)
 
     def __str__(self):
         return self.badge_name
@@ -105,7 +108,7 @@ class Panel(models.Model):
         null=True, on_delete=models.SET_NULL, related_name="panels")
     timeslot = models.ForeignKey(Timeslot,
         blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
-    av_required = models.BooleanField()
+    av_required = models.BooleanField(default=False)
     roomsize = models.IntegerField(
         help_text="How many audience seats should the room have?")
     room = models.ForeignKey(Room,
