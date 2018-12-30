@@ -68,7 +68,6 @@ class PanelInline(admin.TabularInline):
 class TimeslotAdmin(admin.ModelAdmin):
     list_display = ["__str__", "day", "time", "previous_slot", "tracks"]
     list_editable = ["tracks"]
-    readonly_fields = ["conference"]
     list_display_links = ["__str__"]
     list_filter = ["conference"]
     inlines = [PanelInline,]
