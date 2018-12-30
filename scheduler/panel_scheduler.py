@@ -29,7 +29,38 @@ def export_schedule(conference):
             row += "\n"
             text_file.write(row)
         text_file.close()
-            
+
+
+def export_individual_schedule(conference):
+    with open("individual_schedules.tsv", "w") as text_file:
+        row = "Panelist\t" + "Email\t" + "Moderating\t" + "Panels\t"
+        text_file.write(row)
+        for panelist in Panelist.objects.all():
+            row = panelist.badge_name + "\t"
+            row += panelist.email + "\t"
+            moderating = ""
+            panels = ""
+            for panel in panelist.moderating.all():
+                moderating += str(panel.timeslot) + ' ' + str(panel.room.name) + ' ' + panel.title + ", "
+            for panel in panelist.panels.all():
+                panels += str(panel.timeslot) + ' ' + str(panel.room.name) + ' ' + panel.title + ", "
+            row += moderating + "\t"
+            row += panels + "\t"
+            row += "\n"
+            text_file.write(row)
+        text_file.close()
+
+
+def test_duplicated_schedules(conference):
+    panelists = Panelist.objects.all()
+    for panelist in panelists:
+        alltimes = [x.timeslot for x in panelist.panels.filter(conference=conference)]
+        alltimes += [x.timeslot for x in panelist.moderating.filter(conference=conference)]
+        deduplicated = set(alltimes)
+        if len(deduplicated) < len(alltimes):
+            print(panelist.badge_name, "is double-booked.")
+    print("Done!")
+ 
 
 def randomize_panel(available_panels):
     random_index = randint(0, len(available_panels) - 1 )
