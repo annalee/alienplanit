@@ -19,7 +19,11 @@ def export_schedule(conference):
                 row += "\t"
                 panel = room.panels.filter(timeslot=slot).first()
                 if panel:
-                    row += " Title: " + panel.title
+                    row += "Title: " + panel.title
+                    if panel.description:
+                        description = panel.description
+                        description.replace('\n', ' ').replace('\r', '')
+                        row += " Description: " + str(panel.description)
                     row += " Panelists: "
                     if panel.moderator:
                        row += str(panel.moderator) + " (M)"
@@ -30,6 +34,15 @@ def export_schedule(conference):
             text_file.write(row)
         text_file.close()
 
+def export_panelists(conference):
+    with open("panelists.tsv", "w") as text_file:
+        row = "Badge Name\t" + "Email\n"
+        text_file.write(row)
+        for panelist in Panelist.objects.filter(conference=conference):
+            row = panelist.badge_name + "\t" + panelist.email + "\t"
+            row += "\n"
+            text_file.write(row)
+        text_file.close()
 
 def export_individual_schedule(conference):
     with open("individual_schedules.tsv", "w") as text_file:
@@ -60,7 +73,7 @@ def test_duplicated_schedules(conference):
         if len(deduplicated) < len(alltimes):
             print(panelist.badge_name, "is double-booked.")
     print("Done!")
- 
+
 
 def randomize_panel(available_panels):
     random_index = randint(0, len(available_panels) - 1 )
