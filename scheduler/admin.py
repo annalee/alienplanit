@@ -16,7 +16,6 @@ class PanelAdmin(admin.ModelAdmin):
     list_filter = ["pro_track", "conference"]
     search_fields = ['title']
     ordering = ["title"]
-    readonly_fields = ["conference"]
     fieldsets = (
         ("Panel Information", {
             'fields': ("title",
