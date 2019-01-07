@@ -4,6 +4,7 @@ from scheduler.models import Timeslot, Room, Panelist, Panel, Experience, Confer
 from django.db.models import Count, Lookup, Q
 
 from random import randint
+from itertools import chain
 
 def export_schedule(conference):
     with open("schedule.tsv", "w") as text_file:
@@ -62,6 +63,38 @@ def export_individual_schedule(conference):
             row += "\n"
             text_file.write(row)
         text_file.close()
+
+
+def export_individual_schedule_emails(message=''):
+    """
+    Pass in the body of your panelist email as 'message' to get a
+    fully-generated email that's ready to copy and paste.
+    TODO: build mail-sending into the app.
+    """
+
+    with open("schedule_emails.txt", "w") as text_file:
+        for panelist in Panelist.objects.all():
+            text_file.write(panelist.email + "\n")
+            text_file.write("Your ConFusion Panel Schedule" + "\n")
+            text_file.write("Dear " + panelist.badge_name + ",\n")
+            text_file.write(message)
+            text_file.write("Your Scedule:\n\n")
+            allpanels = Panel.objects.filter(
+                Q(moderator=panelist) | Q(final_panelists=panelist)
+                ).distinct(
+                ).order_by("timeslot")
+            for panel in allpanels:
+                text_file.write(panel.title + "\n")
+                text_file.write(panel.timeslot.day + " " + panel.timeslot.time +", " + panel.room.name +"\n")
+                if panel.description:
+                    text_file.write(panel.description + "\n")
+                if panel.moderator:
+                    text_file.write("panelists: " + panel.moderator.badge_name + " (M), ")
+                for p in panel.final_panelists.all():
+                    text_file.write(p.badge_name + ", ")
+                text_file.write("\n\n")    
+            text_file.write("-------------\n\n\n")
+    text_file.close()
 
 
 def test_duplicated_schedules(conference):
