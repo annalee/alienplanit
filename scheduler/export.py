@@ -52,8 +52,8 @@ def individual_schedules(conference):
                 ).distinct(
                 ).order_by("timeslot")
             for panel in allpanels:
-                text_file.write(panel.title + "\n")
-                text_file.write(panel.timeslot.day + " " + panel.timeslot.time +", " + panel.room.name +"\n")   
+                text_file.write(panel.timeslot.day + " " + panel.timeslot.time +", " + panel.room.name +": ")
+                text_file.write(panel.title + "\n") 
             text_file.write("-------------\n\n\n")
     text_file.close()
 
