@@ -45,8 +45,8 @@ def panelists(conference):
 def individual_schedules(conference):
     with open("individual_schedules.txt", "w") as text_file:
         for panelist in Panelist.objects.all():
-            text_file.write(panelist.badge_name + ",\n\n")
-            text_file.write("Your Scedule:\n\n")
+            text_file.write(panelist.badge_name + "\n")
+            text_file.write("Your Scedule:\n")
             allpanels = Panel.objects.filter(
                 Q(moderator=panelist) | Q(final_panelists=panelist)
                 ).distinct(
