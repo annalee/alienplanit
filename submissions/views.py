@@ -1,3 +1,9 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 
-# Create your views here.
+def panel(request):
+    return HttpResponse("I'm a panel submission!")
+
+
+def panelist(request):
+    return HttpResponse("I'm a panelist submission!")

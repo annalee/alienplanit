@@ -20,6 +20,7 @@ from scheduler import views
 
 urlpatterns = [
     path('', views.index),
-    path('scheduler/', include('scheduler.urls')), #not currently in use.
+    path('scheduler/', include('scheduler.urls')),
+    path('submissions/', include('submissions.urls')),
     path('admin/', admin.site.urls),
 ]
