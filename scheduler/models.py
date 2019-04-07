@@ -41,7 +41,7 @@ class Timeslot(models.Model):
         help_text="Number of readings available this slot.")
 
     def __str__(self):
-        return self.day + ' ' + self.time + ' ' + self.conference.slug
+        return self.day + ' ' + self.time
 
     class Meta:
         unique_together = ("day", "time", "conference")
