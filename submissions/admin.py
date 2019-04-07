@@ -5,14 +5,15 @@ from .models import Panelist, Panel
 @admin.register(Panelist)
 class PanelistAdmin(admin.ModelAdmin):
     list_display = [
-        "badge_name",
+        "name",
         "email",
-        "conference"]
+        "conference",
+        "returning"]
     search_fields = [
-        "badge_name",
+        "name",
         "email"]
     readonly_fields = ["conference"]
-    list_filter = ["conference"]
+    list_filter = ["conference", "returning"]
 
 
 @admin.register(Panel)
