@@ -9,9 +9,9 @@ class Test_Pages(SimpleTestCase):
     def test_panel(self):
         response = self.client.get(reverse('panel'))
 
-        self.assertContains(response, "I'm a panel submission!")
+        self.assertContains(response, "I am a panel submission!")
 
     def test_panelist(self):
         response = self.client.get(reverse('panelist'))
 
-        self.assertContains(response, "I'm a panelist submission!")
+        self.assertContains(response, "I am a panelist submission!")

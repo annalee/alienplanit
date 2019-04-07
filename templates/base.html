@@ -1,0 +1,18 @@
+{% load static %}
+
+<html>
+    <head>
+    <!--I'm rendered in alienplanit/templates/base.html . Sitewide head content goes here.-->
+    {% block head %}
+    <!--this block can be overwritten by individual templates to add more items to <head>. -->
+    {% endblock %}
+    </head>
+    <body>
+        {% include "header.html" %}
+
+        {% block main %}
+        {% endblock main %}
+        
+        {% include "footer.html" %}
+    </body>
+</html>
