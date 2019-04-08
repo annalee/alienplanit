@@ -7,7 +7,7 @@
 
 {% block main %}
 <div>{{ declaration }}</div>
-<form action="panelist" method="post">
+<form action="{% url 'panelist' %}" method="post">
     {% csrf_token %}
     {{ panelistform }}
     <input type="submit" value="Submit">

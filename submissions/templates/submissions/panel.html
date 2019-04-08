@@ -9,4 +9,9 @@
 <!-- I'm rendered in alienplanit/submissions/templates/submissions/panel.html 
 	This is where to make changes to the main block for this page only.-->
 <div>{{ declaration }}</div>
+<form action="{% url 'panel' %}" method="post">
+    {% csrf_token %}
+    {{ panelform }}
+    <input type="submit" value="Submit">
+</form>
 {% endblock main %}
