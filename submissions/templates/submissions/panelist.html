@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load bootstrap4 %}
 
 {% block head %}
 <!-- I'm rendered in alienplanit/submissions/templates/submissions/panelist.html 
@@ -9,7 +10,11 @@
 <div>{{ declaration }}</div>
 <form action="{% url 'panelist' %}" method="post">
     {% csrf_token %}
-    {{ panelistform }}
-    <input type="submit" value="Submit">
+    {% bootstrap_form panelistform %}
+    {% buttons %}
+    <button type="submit" class="btn btn-primary">
+      Submit
+    </button>
+    {% endbuttons %}
 </form>
 {% endblock main %}

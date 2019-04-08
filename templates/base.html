@@ -1,8 +1,21 @@
 {% load static %}
 
+{# importing django-bootstrap4 #}
+{% load bootstrap4 %}
+
+{% bootstrap_css %}
+{% bootstrap_javascript jquery='full' %}
+
+{# Display django.contrib.messages as Bootstrap alerts #}
+{% bootstrap_messages %}
+
+
 <html>
     <head>
     <!--I'm rendered in alienplanit/templates/base.html . Sitewide head content goes here.-->
+    {% bootstrap_css %}
+    {% bootstrap_javascript jquery='full' %}
+
     {% block head %}
     <!--this block can be overwritten by individual templates to add more items to <head>. -->
     {% endblock %}

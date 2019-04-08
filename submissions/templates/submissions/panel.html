@@ -1,17 +1,22 @@
 {% extends 'base.html' %}
+{% load bootstrap4 %}
 
 {% block head %}
 <!-- I'm rendered in alienplanit/submissions/templates/submissions/panel.html 
-	If you need to add more items to <head> for this page only, here is where you do it!-->
+    If you need to add more items to <head> for this page only, here is where you do it!-->
 {% endblock head %}
 
 {% block main %}
 <!-- I'm rendered in alienplanit/submissions/templates/submissions/panel.html 
-	This is where to make changes to the main block for this page only.-->
+    This is where to make changes to the main block for this page only.-->
 <div>{{ declaration }}</div>
 <form action="{% url 'panel' %}" method="post">
     {% csrf_token %}
-    {{ panelform }}
-    <input type="submit" value="Submit">
+    {% bootstrap_form panelform %}
+    {% buttons %}
+        <button type="submit" class="btn btn-primary">
+            Submit
+        </button>
+    {% endbuttons %}
 </form>
 {% endblock main %}

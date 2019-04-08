@@ -1,3 +1,6 @@
 Django==2.2
+django-bootstrap4==0.0.8
+
+# Prod
 pytz==2018.7
 python-dotenv
