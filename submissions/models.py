@@ -19,3 +19,12 @@ class Panel(models.Model):
     submitter_email = models.CharField(max_length=280)
     description = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
+
+
+class Textblock(models.Model):
+    slug=models.SlugField(max_length=50)
+    conference = models.SlugField(max_length=50)
+    title=models.CharField(max_length=280, blank=True, null=True)
+    body=models.TextField(blank=True, null=True)
+
+    models.UniqueConstraint(fields=['slug', 'conference'], name='unique_textblock')

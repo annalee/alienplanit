@@ -7,7 +7,9 @@
 {% endblock head %}
 
 {% block main %}
-<div>{{ declaration }}</div>
+<div style="margin:2em">
+<h2>{{ title }}</h2>
+<p>{{ body|safe }}</p>
 <form action="{% url 'panelist' %}" method="post">
     {% csrf_token %}
     {% bootstrap_form panelistform %}
@@ -17,4 +19,5 @@
     </button>
     {% endbuttons %}
 </form>
+</div>
 {% endblock main %}

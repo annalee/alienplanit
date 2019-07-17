@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Panelist, Panel
+from .models import Panelist, Panel, Textblock
 
 @admin.register(Panelist)
 class PanelistAdmin(admin.ModelAdmin):
@@ -26,3 +26,16 @@ class PanelAdmin(admin.ModelAdmin):
         "title",
         "submitter_email"]
     list_filter = ["conference"]
+
+
+@admin.register(Textblock)
+class TextblockAdmin(admin.ModelAdmin):
+    list_display = [
+        "slug",
+        "title",
+        "body"]
+    search_fields = [
+        "title",
+        "slug"]
+    list_filter = [
+        "conference"]

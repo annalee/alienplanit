@@ -9,7 +9,7 @@ class Test_Forms(SimpleTestCase):
 
     def test_panel_submission_form(self):
         form_data = {
-            'email': 'good@email.com',
+            'email': 'leia.organa@resistance.org',
             'title': "The Force And Why It's With Us",
             'description': 'Descriptions are required',
             'notes': ''
@@ -20,7 +20,7 @@ class Test_Forms(SimpleTestCase):
 
     def test_panelist_submission_form(self):
         form_data = {
-            'email': 'good@email.com',
+            'email': 'poe.dameron@resistance.org',
             'name': "Poe Dameron",
             'Returning': '',
             }

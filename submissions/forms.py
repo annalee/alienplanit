@@ -10,9 +10,18 @@ class PanelistForm(forms.Form):
 
 
 class PanelSubmissionForm(forms.Form):
-    email = forms.EmailField(label='Contact Email', max_length=280)
-    title = forms.CharField(label='Panel Title', max_length=280)
-    description = forms.CharField(label='Panel Description', widget=forms.Textarea)
+    email = forms.EmailField(
+        label='Contact Email',
+        max_length=280,
+        help_text="If you'd like to be on or moderate this panel, please use the same email you used on the Panelist Signup Form.")
+    title = forms.CharField(
+        label='Panel Title',
+        max_length=280,
+        help_text="Panel titles and descriptions may be edited for style, clarity, or to add puns.")
+    description = forms.CharField(
+        label='Panel Description',
+        widget=forms.Textarea,
+        help_text="This should be a draft of the panel description as it would appear in the program book.")
     notes = forms.CharField(
         label='Notes for ConFusion Planners',
         widget=forms.Textarea,

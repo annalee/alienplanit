@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 
 from .forms import PanelistForm, PanelSubmissionForm
-from .models import Panelist, Panel
+from .models import Panelist, Panel, Textblock
 
 def panel(request):
     if request.method == 'POST':
@@ -11,7 +11,7 @@ def panel(request):
             form = panelform.cleaned_data
             panel, created = Panel.objects.get_or_create(
                 title=form['title'],
-                conference="TestFusion2020",
+                conference="ConFusion2020",
                 submitter_email=form['email'],
                 description=form['description'],
                 notes=form['notes'],
@@ -21,10 +21,19 @@ def panel(request):
     else:
         panelform = PanelSubmissionForm()
 
-    context = {
+    try:
+        textblock = Textblock.objects.get(slug="panelform", conference="ConFusion2020")
+        context = {
         'panelform': panelform,
-        'declaration': "I am a panel submission!"
+        'title': textblock.title,
+        'body': textblock.body
         }
+    except Textblock.DoesNotExist as e:
+        context = {
+            'panelform': panelform,
+            'title': "Panel Submission Form",
+            'body': ''
+            }
     return render(request, 'submissions/panel.html', context)
 
 
@@ -36,17 +45,26 @@ def panelist(request):
             panelist, created = Panelist.objects.get_or_create(
                 email=form['email'],
                 name=form['name'],
-                conference="TestFusion2020")
+                conference="ConFusion2020")
             # TODO turn the into an actual page.
             if created:
-                return HttpResponse("Thanks, your info has been recorded.")
+                return HttpResponse("Thanks, your info has been recorded. We'll contact you when we're ready to register panelists.")
             else:
-                return HttpResponse("Thanks, your info has been updated.")
+                return HttpResponse("Thanks, your info has been updated. We'll contact you when we're ready to register panelists.")
     else:
         panelistform = PanelistForm()
 
-    context = {
-        'panelistform': panelistform,
-        'declaration': "I am a panelist submission!"
+    try:
+        textblock = Textblock.objects.get(slug="panelistform", conference="ConFusion2020")
+        context = {
+            'panelistform': panelistform,
+            'title': textblock.title,
+            'body': textblock.body
+            }
+    except Textblock.DoesNotExist as e:
+        context = {
+            'panelistform': panelistform,
+            'title': "Panelist Signup Form",
+            'body': ''
         }
     return render(request, 'submissions/panelist.html', context)
