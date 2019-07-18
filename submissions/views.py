@@ -43,6 +43,7 @@ def panelist(request):
     if request.method == 'POST':
         panelistform = PanelistForm(request.POST)
         if panelistform.is_valid():
+            message = "We'll contact you when we're ready to register panelists."
             form = panelistform.cleaned_data
             panelist, created = Panelist.objects.get_or_create(
                 email=form['email'],
@@ -53,16 +54,20 @@ def panelist(request):
             panelist.save()
             if created:
                 textblock, textcreated = Textblock.objects.get_or_create(slug="panelistcreated", conference="ConFusion2020")
-                if textcreated:
-                    textblock.body = "Thanks, your info has been recorded. We'll contact you when we're ready to register panelists."
+                if textcreated: 
+                    textblock.body = "Thanks, your info has been recorded. " + message
                     textblock.save()
+                    message = textblock.body
+                else:
                     message = textblock.body
 
             else:
                 textblock, textcreated = Textblock.objects.get_or_create(slug="panelistupdated", conference="ConFusion2020")
                 if textcreated:
-                    textblock.body = "Thanks, we've updated your info. We'll contact you when we're ready to register panelists."
+                    textblock.body = "Thanks, we've updated your info. " + message
                     textblock.save()
+                    message = textblock.body
+                else:
                     message = textblock.body
 
             context = {
