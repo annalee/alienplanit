@@ -22,14 +22,14 @@ class PanelSubmissionForm(forms.Form):
     title = forms.CharField(
         label='Panel Title',
         max_length=280,
-        help_text="Panel titles and descriptions may be edited for style, clarity, or to add puns.")
+        help_text="Panel titles and descriptions may be edited for style, clarity, or fun.")
     description = forms.CharField(
         label='Panel Description',
-        widget=forms.Textarea,
+        widget=forms.Textarea(attrs={'rows':4}),
         help_text="This should be a draft of the panel description as it would appear in the program book.")
     notes = forms.CharField(
         label='Notes for ConFusion Planners',
-        widget=forms.Textarea,
+        widget=forms.Textarea(attrs={'rows':3}),
         required=False,
         help_text="Does this panel require a/v? Did you pre-arrange it with other panelists? Any other notes for us?"
         )
