@@ -3,10 +3,28 @@ from django.db import models
 class Panelist(models.Model):
     # this collects info we can use to contact interested panelists about
     # signing up for panels
+    INVITE = "yes"
+    NOINVITE = "no"
+    PENDING = "pen"
+    STATUS_CHOICES = [
+        (INVITE, 'Invited'),
+        (NOINVITE, 'Not Invited'),
+        (PENDING, 'Pending'),
+    ]
+
     email = models.CharField(max_length=280)
     name = models.CharField(max_length=280)
     conference = models.SlugField(max_length=50)
     returning = models.BooleanField(default=False)
+    staff_notes = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Internal notes for conference staff about the panelist.")
+    status = models.CharField(
+        max_length=3,
+        choices=STATUS_CHOICES,
+        default=PENDING,
+    )
 
     def __str__(self):
         return self.name

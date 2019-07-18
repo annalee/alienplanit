@@ -13,7 +13,10 @@ class PanelistAdmin(admin.ModelAdmin):
         "name",
         "email"]
     readonly_fields = ["conference"]
-    list_filter = ["conference", "returning"]
+    list_filter = [
+        "conference",
+        "returning",
+        "status"]
 
 
 @admin.register(Panel)
