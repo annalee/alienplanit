@@ -26,5 +26,5 @@ class PanelSubmissionForm(forms.Form):
         label='Notes for ConFusion Planners',
         widget=forms.Textarea,
         required=False,
-        help_text="Do you have specific panelists in mind? Require a/v? Any other notes for us?"
+        help_text="Does this panel require a/v? Did you pre-arrange it with other panelists? Any other notes for us?"
         )

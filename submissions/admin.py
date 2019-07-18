@@ -25,7 +25,9 @@ class PanelAdmin(admin.ModelAdmin):
     search_fields = [
         "title",
         "submitter_email"]
-    list_filter = ["conference"]
+    list_filter = [
+        "conference",
+        "status"]
 
 
 @admin.register(Textblock)

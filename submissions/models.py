@@ -13,12 +13,31 @@ class Panelist(models.Model):
 
 
 class Panel(models.Model):
-	# this is for panel submissions
+    # this is for panel submissions
+
+    ACCEPTED = "yes"
+    REJECTED = "no"
+    PENDING = "pen"
+    STATUS_CHOICES = [
+        (ACCEPTED, 'Accepted'),
+        (REJECTED, 'Rejected'),
+        (PENDING, 'Pending'),
+    ]
+
     title = models.CharField(max_length=280)
     conference = models.SlugField(max_length=50)
     submitter_email = models.CharField(max_length=280)
     description = models.TextField(blank=True, null=True)
     notes = models.TextField(blank=True, null=True)
+    staff_notes = models.TextField(
+        blank=True,
+        null=True,
+        help_text="Internal notes for conference staff about the submission.")
+    status = models.CharField(
+        max_length=3,
+        choices=STATUS_CHOICES,
+        default=PENDING,
+    )
 
 
 class Textblock(models.Model):
