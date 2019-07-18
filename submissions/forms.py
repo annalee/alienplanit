@@ -10,7 +10,7 @@ class PanelistForm(forms.Form):
     bio = forms.CharField(
         label='Bio',
         widget=forms.Textarea(attrs={'rows':3}),
-        help_text="New panelist? Tell us a little about yourself.",
+        help_text="New panelist? Tell us a little about yourself. (This is for our edification only and won't be published).",
         required=False)
 
 
