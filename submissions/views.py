@@ -1,9 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.clickjacking import xframe_options_exempt
 
 from .forms import PanelistForm, PanelSubmissionForm
 from .models import Panelist, Panel, Textblock
 
+
+@xframe_options_exempt
 def panel(request):
     if request.method == 'POST':
         panelform = PanelSubmissionForm(request.POST)
@@ -39,6 +42,7 @@ def panel(request):
     return render(request, 'submissions/panel.html', context)
 
 
+@xframe_options_exempt
 def panelist(request):
     if request.method == 'POST':
         panelistform = PanelistForm(request.POST)
