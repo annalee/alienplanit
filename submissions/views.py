@@ -58,6 +58,7 @@ def panelist(request):
                 conference="ConFusion2020",
             )
             panelist.returning = form['returning']
+            panelist.bio = form['bio']
             panelist.save()
             if created:
                 textblock, textcreated = Textblock.objects.get_or_create(slug="panelistcreated", conference="ConFusion2020")

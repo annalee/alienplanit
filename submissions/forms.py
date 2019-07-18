@@ -7,6 +7,11 @@ class PanelistForm(forms.Form):
         label='Returning Panelist',
         help_text="Have you been a panelist at ConFusion before?",
         required=False)
+    bio = forms.CharField(
+        label='Bio',
+        widget=forms.Textarea(attrs={'rows':3}),
+        help_text="New panelist? Tell us a little about yourself.",
+        required=False)
 
 
 class PanelSubmissionForm(forms.Form):

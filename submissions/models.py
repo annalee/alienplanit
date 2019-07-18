@@ -16,6 +16,9 @@ class Panelist(models.Model):
     name = models.CharField(max_length=280)
     conference = models.SlugField(max_length=50)
     returning = models.BooleanField(default=False)
+    bio = models.TextField(
+        blank=True,
+        null=True,)
     staff_notes = models.TextField(
         blank=True,
         null=True,
