@@ -16,24 +16,26 @@ def panel(request):
                 description=form['description'],
                 notes=form['notes'],
                 )
-            # TODO turn the into an actual page.
-            return HttpResponse("Thanks, your panel has been submitted.")
+            textblock, created = Textblock.objects.get_or_create(slug="panelthanks", conference="ConFusion2020")
+            if created:
+                textblock.body = "Your panel idea has been submitted. We'll let you know if we're going to run it."
+                textblock.save()
+            context = {
+                'message': textblock.body,
+            }
+            return render(request, 'submissions/thanks.html', context)
     else:
         panelform = PanelSubmissionForm()
 
-    try:
-        textblock = Textblock.objects.get(slug="panelform", conference="ConFusion2020")
-        context = {
+    textblock, created = Textblock.objects.get_or_create(slug="panelform", conference="ConFusion2020")
+    if created:
+        textblock.title = "Panel Submission Form"
+        textblock.save()
+    context = {
         'panelform': panelform,
         'title': textblock.title,
-        'body': textblock.body
-        }
-    except Textblock.DoesNotExist as e:
-        context = {
-            'panelform': panelform,
-            'title': "Panel Submission Form",
-            'body': ''
-            }
+        'body': textblock.body,
+    }
     return render(request, 'submissions/panel.html', context)
 
 
@@ -45,26 +47,40 @@ def panelist(request):
             panelist, created = Panelist.objects.get_or_create(
                 email=form['email'],
                 name=form['name'],
-                conference="ConFusion2020")
-            # TODO turn the into an actual page.
+                conference="ConFusion2020",
+            )
+            panelist.returning = form['returning']
+            panelist.save()
             if created:
-                return HttpResponse("Thanks, your info has been recorded. We'll contact you when we're ready to register panelists.")
+                textblock, textcreated = Textblock.objects.get_or_create(slug="panelistcreated", conference="ConFusion2020")
+                if textcreated:
+                    textblock.body = "Thanks, your info has been recorded. We'll contact you when we're ready to register panelists."
+                    textblock.save()
+                    message = textblock.body
+
             else:
-                return HttpResponse("Thanks, your info has been updated. We'll contact you when we're ready to register panelists.")
+                textblock, textcreated = Textblock.objects.get_or_create(slug="panelistupdated", conference="ConFusion2020")
+                if textcreated:
+                    textblock.body = "Thanks, we've updated your info. We'll contact you when we're ready to register panelists."
+                    textblock.save()
+                    message = textblock.body
+
+            context = {
+                'message': message,
+            }
+            return render(request, 'submissions/thanks.html', context)
     else:
         panelistform = PanelistForm()
 
-    try:
-        textblock = Textblock.objects.get(slug="panelistform", conference="ConFusion2020")
-        context = {
-            'panelistform': panelistform,
-            'title': textblock.title,
-            'body': textblock.body
-            }
-    except Textblock.DoesNotExist as e:
-        context = {
-            'panelistform': panelistform,
-            'title': "Panelist Signup Form",
-            'body': ''
+    textblock, created = Textblock.objects.get_or_create(slug="panelistform", conference="ConFusion2020")
+    if created:
+        textblock.title = "Panelist Signup Form",
+        textblock.save()
+
+    context = {
+        'panelistform': panelistform,
+        'title': textblock.title,
+        'body': textblock.body
         }
+
     return render(request, 'submissions/panelist.html', context)
