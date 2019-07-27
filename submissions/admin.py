@@ -8,7 +8,10 @@ class PanelistAdmin(admin.ModelAdmin):
         "name",
         "email",
         "conference",
-        "returning"]
+        "returning",
+        "status"]
+    list_editable = [
+        "status"]
     search_fields = [
         "name",
         "email"]
