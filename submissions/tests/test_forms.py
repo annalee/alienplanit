@@ -23,6 +23,7 @@ class Test_Forms(SimpleTestCase):
             'email': 'poe.dameron@resistance.org',
             'name': "Poe Dameron",
             'Returning': '',
+            'bio': '',
             }
         form = PanelistForm(data=form_data)
         self.assertTrue(form.is_valid())
