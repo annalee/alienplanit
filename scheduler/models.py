@@ -96,6 +96,9 @@ class Panelist(models.Model):
     man = models.BooleanField(default=False)
     sched_sent = models.BooleanField(default=False)
     reading_requested = models.BooleanField(default=False)
+    signing_requested = models.BooleanField(default=False)
+    invite_again = models.BooleanField(default=True)
+    staff_notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
         return self.badge_name
