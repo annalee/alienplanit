@@ -77,13 +77,13 @@ class TimeslotAdmin(admin.ModelAdmin):
 
 @admin.register(Panelist)
 class PanelistAdmin(admin.ModelAdmin):
-    list_display = ["badge_name", "email", "pronouns", "sched_sent", "white"]
+    list_display = ["badge_name", "email", "pronouns",]
     filter_horizontal = ["experience",]
     search_fields = ['email', 'badge_name']
     inlines = [PanelFinalPanInline, PanelInline]
-    list_editable = ["sched_sent"]
+    list_editable = []
     readonly_fields = ["conference"]
-    list_filter = ["conference"]
+    list_filter = ["conference", "invite_again", "pronouns", "white"]
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
