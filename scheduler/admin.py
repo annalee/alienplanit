@@ -1,10 +1,20 @@
 from django.contrib import admin
+from django.forms import ModelForm
 
-from .models import Timeslot, Room, Experience, Panelist, Panel, Conference
+from .models import Timeslot, Room, Experience, Panelist, Panel, Conference, Track
 
+
+class PanelAdminForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(PanelAdminForm, self).__init__(*args, **kwargs)
+        self.fields['tracks'].queryset = Track.objects.filter(conference=self.instance.conference)
 
 @admin.register(Panel)
 class PanelAdmin(admin.ModelAdmin):
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['form'] = PanelAdminForm
+        return super().get_form(request, obj, **kwargs)
 
     list_display = ["title",
                     "moderator",
@@ -13,7 +23,7 @@ class PanelAdmin(admin.ModelAdmin):
                     "panelists_locked",
                     ]
     list_editable = ["panelists_locked",]
-    list_filter = ["conference"]
+    list_filter = ("conference", ("tracks", admin.RelatedOnlyFieldListFilter))
     search_fields = ['title']
     ordering = ["title"]
     fieldsets = (
@@ -64,6 +74,15 @@ class PanelInline(admin.TabularInline):
     extra = 1
 
 
+@admin.register(Track)
+class TrackAdmin(admin.ModelAdmin):
+    list_display = ["name", "slug", "conference"]
+    list_filter = ["conference"]
+
+    class Meta:
+        ordering = ["day", "time"]
+
+
 @admin.register(Timeslot)
 class TimeslotAdmin(admin.ModelAdmin):
     list_display = ["__str__", "day", "time", "previous_slot", "tracks"]
@@ -75,11 +94,20 @@ class TimeslotAdmin(admin.ModelAdmin):
     class Meta:
         ordering = ["day", "time"]
 
+class PanelistAdminForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(PanelistAdminForm, self).__init__(*args, **kwargs)
+        self.fields['tracks'].queryset = Track.objects.filter(conference=self.instance.conference)
 
 @admin.register(Panelist)
 class PanelistAdmin(admin.ModelAdmin):
+
+    def get_form(self, request, obj=None, **kwargs):
+        kwargs['form'] = PanelistAdminForm
+        return super().get_form(request, obj, **kwargs)
+
     list_display = ["badge_name", "email", "pronouns",]
-    filter_horizontal = ["experience",]
+    filter_horizontal = ["experience", "tracks"]
     search_fields = ['email', 'badge_name']
     inlines = [PanelFinalPanInline, PanelInline]
     list_editable = []
