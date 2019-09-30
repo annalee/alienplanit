@@ -93,7 +93,7 @@ class Panelist(models.Model):
     badge_name = models.CharField(max_length=280)
     conference = models.ForeignKey(Conference,
         null=True, blank=True, on_delete=models.SET_NULL, related_name="panelists")
-    tracks = models.ManyToManyField(Track, blank=True, null= True, related_name="panelists")
+    tracks = models.ManyToManyField(Track, blank=True, related_name="panelists")
     pronouns = models.CharField(max_length=280)
     a11y = models.TextField(blank=True)
     inarow = models.IntegerField(default=2,
