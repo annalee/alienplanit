@@ -85,6 +85,12 @@ class Track(models.Model):
     conference = models.ForeignKey(Conference,
         null=True, on_delete=models.SET_NULL, related_name="tracks")
 
+    def __str__(self):
+        return self.conference.name + self.name
+
+    class Meta:
+        unique_together = ("slug", "conference")
+
 
 class Panelist(models.Model):
     # this model contains some biographical info so we can avoid 'randomly'
@@ -93,7 +99,8 @@ class Panelist(models.Model):
     badge_name = models.CharField(max_length=280)
     conference = models.ForeignKey(Conference,
         null=True, blank=True, on_delete=models.SET_NULL, related_name="panelists")
-    tracks = models.ManyToManyField(Track, blank=True, related_name="panelists")
+    tracks = models.ManyToManyField(Track,
+        blank=True, related_name="panelists")
     pronouns = models.CharField(max_length=280)
     a11y = models.TextField(blank=True)
     inarow = models.IntegerField(default=2,
@@ -116,7 +123,8 @@ class Panel(models.Model):
     description = models.TextField(blank=True, null=True)
     conference = models.ForeignKey(Conference,
         null=True, on_delete=models.SET_NULL, related_name="panels")
-    tracks = models.ManyToManyField(Track, blank=True, related_name="panels")
+    tracks = models.ManyToManyField(Track,
+        blank=True, related_name="panels")
     timeslot = models.ForeignKey(Timeslot,
         blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
     av_required = models.BooleanField(default=False)
@@ -136,7 +144,6 @@ class Panel(models.Model):
         on_delete=models.SET_NULL, related_name="moderating")
     experience = models.ManyToManyField(Experience, blank=True)
     experience_required = models.BooleanField(default=False)
-    pro_track = models.BooleanField(default=False)
     panelists_locked = models.BooleanField(default=False)
 
 
