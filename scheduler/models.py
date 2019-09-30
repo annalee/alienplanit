@@ -79,6 +79,12 @@ class Experience(models.Model):
     def __str__(self):
         return self.name
 
+class Track(models.Model):
+    slug = models.SlugField(max_length=50)
+    name = models.CharField(max_length=280)
+    conference = models.ForeignKey(Conference,
+        null=True, on_delete=models.SET_NULL, related_name="tracks")
+
 
 class Panelist(models.Model):
     # this model contains some biographical info so we can avoid 'randomly'
@@ -86,7 +92,8 @@ class Panelist(models.Model):
     email = models.CharField(max_length=280)
     badge_name = models.CharField(max_length=280)
     conference = models.ForeignKey(Conference,
-        null=True, on_delete=models.SET_NULL, related_name="panelists")
+        null=True, blank=True, on_delete=models.SET_NULL, related_name="panelists")
+    tracks = models.ManyToManyField(Track, blank=True, null= True, related_name="panelists")
     pronouns = models.CharField(max_length=280)
     a11y = models.TextField(blank=True)
     inarow = models.IntegerField(default=2,
@@ -109,6 +116,7 @@ class Panel(models.Model):
     description = models.TextField(blank=True, null=True)
     conference = models.ForeignKey(Conference,
         null=True, on_delete=models.SET_NULL, related_name="panels")
+    tracks = models.ManyToManyField(Track, blank=True, related_name="panels")
     timeslot = models.ForeignKey(Timeslot,
         blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
     av_required = models.BooleanField(default=False)
