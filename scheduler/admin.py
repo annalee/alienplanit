@@ -5,15 +5,15 @@ from .models import Timeslot, Room, Experience, Panelist, Panel, Conference
 
 @admin.register(Panel)
 class PanelAdmin(admin.ModelAdmin):
+
     list_display = ["title",
                     "moderator",
                     "timeslot",
                     "room",
-                    "pro_track",
                     "panelists_locked",
                     ]
     list_editable = ["panelists_locked",]
-    list_filter = ["pro_track", "conference"]
+    list_filter = ["conference"]
     search_fields = ['title']
     ordering = ["title"]
     fieldsets = (
@@ -21,6 +21,7 @@ class PanelAdmin(admin.ModelAdmin):
             'fields': ("title",
                        "description",
                        "conference",
+                       "tracks",
                        "timeslot",
                        "room",
                        "panelists_locked",
@@ -29,8 +30,7 @@ class PanelAdmin(admin.ModelAdmin):
         ("Requirements", {
             'fields': ('av_required',
                        'roomsize',
-                       'experience_required',
-                       'pro_track')
+                       'experience_required',)
             }),
         ("Panelists", {
             'fields': ("interested_panelists",
@@ -40,7 +40,8 @@ class PanelAdmin(admin.ModelAdmin):
                        "moderator")
             }),
         )
-    filter_horizontal = ["interested_panelists",
+    filter_horizontal = ["tracks",
+                         "interested_panelists",
                          "interested_moderators",
                          "required_panelists",
                          "final_panelists",
