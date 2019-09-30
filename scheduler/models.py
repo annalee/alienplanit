@@ -86,7 +86,7 @@ class Track(models.Model):
         null=True, on_delete=models.SET_NULL, related_name="tracks")
 
     def __str__(self):
-        return self.conference.name + self.name
+        return "[" + self.conference.slug+"] " + self.name
 
     class Meta:
         unique_together = ("slug", "conference")
