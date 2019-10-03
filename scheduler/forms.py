@@ -3,10 +3,6 @@ from .models import Panelist, Panel, Track, Conference
 
 
 class PanelForm(forms.Form):
-    con, created = Conference.objects.get_or_create(
-        slug='ConFusion2020', name='ConFusion 2020')
-    tracks = con.tracks.all()
-
     title = forms.CharField(
         label='Panel Title',
         max_length=280,
@@ -15,14 +11,15 @@ class PanelForm(forms.Form):
         label='Panel Description',
         widget=forms.Textarea(attrs={'rows':4}),
         help_text="This should be a draft of the panel description as it would appear in the program book.")
-    '''
     notes = forms.CharField(
         label='Notes for ConFusion Planners',
         widget=forms.Textarea(attrs={'rows':3}),
         required=False,
         help_text="Does this panel require a/v? Did you pre-arrange it with other panelists? Any other notes for us?"
         )
-    '''
+    con, created = Conference.objects.get_or_create(
+        slug='ConFusion2020', name='ConFusion 2020')
+    tracks = con.tracks.all()
     tracks = forms.ModelMultipleChoiceField(
         queryset = tracks,
         label='Tracks:',

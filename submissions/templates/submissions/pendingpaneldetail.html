@@ -15,7 +15,10 @@
 
 <h3>{{ panel.title }}</h3>
 <p>{{ panel.description|safe }}</p>
+<h4>Submitter Notes:</h4>
 <p>{{ panel.notes|safe }}</p>
+<h4>Staff Notes:</h4>
+<p>{{ panel.staff_notes|safe }}</p>
 {% if submitter %}
 <p>Submitted by {{ submitter.name }}</p>
 {% else %}
@@ -25,9 +28,8 @@
 
 <form method="post">{% csrf_token %}
     {% csrf_token %}
-    {% bootstrap_form panelform %}
-    
     {% bootstrap_form form %}
+    {% bootstrap_form panelform %}
     <input type="submit" value="Update">
 </form>
 </div>

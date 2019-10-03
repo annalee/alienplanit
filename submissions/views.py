@@ -57,6 +57,7 @@ class PendingPanelDetail(UpdateView):
             textblock.save()
 
         submission = self.object
+        notes = submission.notes + '\n\n' + submission.staff_notes
 
         context['textblock'] = textblock
         context['submitter'] = Panelist.objects.filter(email=submission.submitter_email).first()
@@ -66,7 +67,7 @@ class PendingPanelDetail(UpdateView):
                 'title': submission.title,
                 'description': submission.description,
                 'roomsize': 30,
-                # 'notes': submission.notes,
+                'notes': notes
             }
         )
 
@@ -77,13 +78,13 @@ class PendingPanelDetail(UpdateView):
         if form.instance.status == Panel.ACCEPTED:
             panelform = PanelForm(self.request.POST)
             if panelform.is_valid():
-                panelform = panelform.cleaned_data
+                panelform = panelform.cleaned_data 
                 accepted = SchedulerPanel(
                     title = panelform['title'],
                     description = panelform['description'],
                     conference = SchedulerConference.objects.filter(
                         slug=form.instance.conference).first(),
-                    # notes = form.instance.staff_notes,
+                    notes = panelform['notes'],
                     av_required = panelform['av_required'],
                     roomsize = panelform['roomsize'],
                     )
