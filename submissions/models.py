@@ -60,6 +60,8 @@ class Panel(models.Model):
         default=PENDING,
     )
 
+    def get_absolute_url(self):
+        return reverse('pending-panel-detail', kwargs={'pk': self.pk})
 
 class Textblock(models.Model):
     slug=models.SlugField(max_length=50)
