@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block head %}
+<!-- I'm rendered in alienplanit/submissions/templates/submissions/pendingpanellist.html 
+    If you need to add more items to <head> for this page only, here is where you do it!-->
+{% endblock head %}
+
+{% block main %}
+<!-- I'm rendered in alienplanit/submissions/templates/submissions/pendingpanellist.html 
+    This is where to make changes to the main block for this page only.-->
+<div style="margin:2em">
+<h2>{{ textblock.title }}</h2>
+<p>{{ textblock.body|safe }}</p>
+
+<h3>{{ panel.title }}</h3>
+<p>{{ panel.description|safe }}</p>
+<p>{{ panel.notes|safe }}</p>
+{% if submitter %}
+<p>Submitted by {{ submitter.name }}</p>
+{% else %}
+<p>Submitter isn't registered.</p>
+{% endif %}
+<p>Submitter email: {{ panel.submitter_email }}</p>
+
+<form method="post">{% csrf_token %}
+    {% csrf_token %}
+    {% bootstrap_form panelform %}
+    
+    {% bootstrap_form form %}
+    <input type="submit" value="Update">
+</form>
+</div>
+{% endblock main %}
