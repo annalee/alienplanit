@@ -30,6 +30,7 @@ class PanelAdmin(admin.ModelAdmin):
         ("Panel Information", {
             'fields': ("title",
                        "description",
+                       "notes",
                        "conference",
                        "tracks",
                        "timeslot",
