@@ -121,6 +121,8 @@ class Panelist(models.Model):
 class Panel(models.Model):
     title = models.CharField(max_length=280)
     description = models.TextField(blank=True, null=True)
+    notes = models.TextField(blank=True, null=True,
+        help_text="Internal notes for conference planners.")
     conference = models.ForeignKey(Conference,
         null=True, on_delete=models.SET_NULL, related_name="panels")
     tracks = models.ManyToManyField(Track,
