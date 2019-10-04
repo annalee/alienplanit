@@ -9,6 +9,7 @@ class PanelForm(forms.Form):
         help_text="Panel titles and descriptions may be edited for style, clarity, or fun.")
     description = forms.CharField(
         label='Panel Description',
+        required=False,
         widget=forms.Textarea(attrs={'rows':4}),
         help_text="This should be a draft of the panel description as it would appear in the program book.")
     notes = forms.CharField(

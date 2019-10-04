@@ -17,6 +17,8 @@ from scheduler.models import Panel as SchedulerPanel
 from scheduler.models import Conference as SchedulerConference
 from scheduler.forms import PanelForm
 
+import pdb
+
 @method_decorator(staff_member_required, name='dispatch')
 class PendingPanelList(ListView):
 
@@ -49,10 +51,11 @@ class PendingPanelDetail(UpdateView):
 
     def get_panelform_initial(self):
         submission = self.object
-        notes = submission.notes + '\r\n\r\n' + submission.staff_notes
+
+        notes = str(submission.notes) + '\r\n\r\n' + str(submission.staff_notes)
         initial={
                 'title': submission.title,
-                'description': submission.description,
+                'description': str(submission.description),
                 'roomsize': 30,
                 'notes': notes
             }
@@ -102,8 +105,12 @@ class PendingPanelDetail(UpdateView):
         submission = self.object
         panelform = PanelForm(self.get_panelform_submitted(),
             initial=self.get_panelform_initial())
+        # Panelform.has_changed() is wigging out even when
+        # panelform.data == panelform.initial and I'm too tired to debug it.
+        panelformhaschanged = panelform.data != panelform.initial
+
         # Guardrail against folks losing data by not setting the panel status
-        if panelform.has_changed() and (form.instance.status != Panel.ACCEPTED):
+        if panelformhaschanged and (form.instance.status != Panel.ACCEPTED):
             form.add_error('status', ValidationError(
                 ("You must set the panel as accepted to save your changes"),
                 code='not_accepted'))
