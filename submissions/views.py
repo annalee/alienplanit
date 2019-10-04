@@ -1,10 +1,129 @@
+from django import forms
+from django.core.exceptions import ValidationError
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
+from django.views.generic.list import ListView
+from django.views.generic.edit import UpdateView
+from django.utils.decorators import method_decorator
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.admin.views.decorators import staff_member_required
+from django.urls import reverse_lazy
 
 from .forms import PanelistForm, PanelSubmissionForm
 from .models import Panelist, Panel, Textblock
+
+from scheduler.models import Panel as SchedulerPanel
+from scheduler.models import Conference as SchedulerConference
+from scheduler.forms import PanelForm
+
+@method_decorator(staff_member_required, name='dispatch')
+class PendingPanelList(ListView):
+
+    template_name = 'submissions/pendingpanellist.html'
+
+    def get_queryset(self):
+        return Panel.objects.filter(status=Panel.PENDING)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Textblock for top of page
+        textblock, created = Textblock.objects.get_or_create(
+            slug="panelreviewlist", conference="ConFusion2020")
+        if created:
+            textblock.title = "Pending Panel Queue"
+            textblock.save()
+
+        context['textblock'] = textblock
+        return context
+
+@method_decorator(staff_member_required, name='dispatch')
+class PendingPanelDetail(UpdateView):
+
+    model = Panel
+    fields = ['status']
+
+    template_name = 'submissions/pendingpaneldetail.html'
+    success_url = reverse_lazy('pending-panel-list')
+
+    def get_panelform_initial(self):
+        submission = self.object
+        notes = submission.notes + '\r\n\r\n' + submission.staff_notes
+        initial={
+                'title': submission.title,
+                'description': submission.description,
+                'roomsize': 30,
+                'notes': notes
+            }
+        return initial
+
+    def get_panelform_submitted(self):
+        submission = self.request.POST
+        submitted={
+                'title': submission['title'],
+                'description': submission['description'],
+                'roomsize': int(submission['roomsize']),
+                'notes': submission['notes']
+            }
+        return submitted
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Textblock for top of page
+        textblock, created = Textblock.objects.get_or_create(
+            slug="panelreviewdetail", conference="ConFusion2020")
+        if created:
+            textblock.title = "Pending Panel"
+            textblock.save()
+
+        submission = self.object
+        panelform = PanelForm(
+            initial=self.get_panelform_initial()
+        )
+
+        context['textblock'] = textblock
+        context['submitter'] = Panelist.objects.filter(email=submission.submitter_email).first()
+        context['panel'] = submission
+        context['panelform'] = panelform
+
+        return context
+
+
+    def form_invalid(self, form, **kwargs):
+        context = self.get_context_data()
+        context['form'] = form
+        context['panelform'] = PanelForm(self.request.POST)
+        return self.render_to_response(context)
+
+    def form_valid(self, form):
+        submission = self.object
+        panelform = PanelForm(self.get_panelform_submitted(),
+            initial=self.get_panelform_initial())
+        # Guardrail against folks losing data by not setting the panel status
+        if panelform.has_changed() and (form.instance.status != Panel.ACCEPTED):
+            form.add_error('status', ValidationError(
+                ("You must set the panel as accepted to save your changes"),
+                code='not_accepted'))
+            return self.form_invalid(form)
+        # Save the submission as a SchedulerPanel if the status is accepted
+        if form.instance.status == Panel.ACCEPTED:
+            if panelform.is_valid():
+                panelform = panelform.cleaned_data 
+                accepted = SchedulerPanel(
+                    title = panelform['title'],
+                    description = panelform['description'],
+                    conference = SchedulerConference.objects.filter(
+                        slug=form.instance.conference).first(),
+                    notes = panelform['notes'],
+                    av_required = panelform['av_required'],
+                    roomsize = panelform['roomsize'],
+                    )
+                accepted.save()
+                accepted.tracks.set(panelform['tracks'])
+        return super().form_valid(form)
 
 
 @xframe_options_exempt
