@@ -17,8 +17,6 @@ from scheduler.models import Panel as SchedulerPanel
 from scheduler.models import Conference as SchedulerConference
 from scheduler.forms import PanelForm
 
-import pdb
-
 @method_decorator(staff_member_required, name='dispatch')
 class PendingPanelList(ListView):
 
