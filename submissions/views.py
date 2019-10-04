@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 from django.shortcuts import render
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.list import ListView
@@ -46,6 +47,28 @@ class PendingPanelDetail(UpdateView):
     template_name = 'submissions/pendingpaneldetail.html'
     success_url = reverse_lazy('pending-panel-list')
 
+    def get_panelform_initial(self):
+        submission = self.object
+        notes = submission.notes + '\r\n\r\n' + submission.staff_notes
+        initial={
+                'title': submission.title,
+                'description': submission.description,
+                'roomsize': 30,
+                'notes': notes
+            }
+        return initial
+
+    def get_panelform_submitted(self):
+        submission = self.request.POST
+        submitted={
+                'title': submission['title'],
+                'description': submission['description'],
+                'roomsize': int(submission['roomsize']),
+                'notes': submission['notes']
+            }
+        return submitted
+
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
@@ -57,26 +80,36 @@ class PendingPanelDetail(UpdateView):
             textblock.save()
 
         submission = self.object
-        notes = submission.notes + '\n\n' + submission.staff_notes
+        panelform = PanelForm(
+            initial=self.get_panelform_initial()
+        )
 
         context['textblock'] = textblock
         context['submitter'] = Panelist.objects.filter(email=submission.submitter_email).first()
         context['panel'] = submission
-        context['panelform'] = PanelForm(
-            initial={
-                'title': submission.title,
-                'description': submission.description,
-                'roomsize': 30,
-                'notes': notes
-            }
-        )
+        context['panelform'] = panelform
 
         return context
 
+
+    def form_invalid(self, form, **kwargs):
+        context = self.get_context_data()
+        context['form'] = form
+        context['panelform'] = PanelForm(self.request.POST)
+        return self.render_to_response(context)
+
     def form_valid(self, form):
+        submission = self.object
+        panelform = PanelForm(self.get_panelform_submitted(),
+            initial=self.get_panelform_initial())
+        # Guardrail against folks losing data by not setting the panel status
+        if panelform.has_changed() and (form.instance.status != Panel.ACCEPTED):
+            form.add_error('status', ValidationError(
+                ("You must set the panel as accepted to save your changes"),
+                code='not_accepted'))
+            return self.form_invalid(form)
         # Save the submission as a SchedulerPanel if the status is accepted
         if form.instance.status == Panel.ACCEPTED:
-            panelform = PanelForm(self.request.POST)
             if panelform.is_valid():
                 panelform = panelform.cleaned_data 
                 accepted = SchedulerPanel(
