@@ -56,7 +56,8 @@ class PendingPanelDetail(UpdateView):
                 'title': submission.title,
                 'description': str(submission.description),
                 'roomsize': 30,
-                'notes': notes
+                'notes': notes,
+                'tracks': []
             }
         return initial
 
