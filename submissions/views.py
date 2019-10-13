@@ -17,6 +17,7 @@ from scheduler.models import Panel as SchedulerPanel
 from scheduler.models import Conference as SchedulerConference
 from scheduler.forms import PanelForm
 
+
 @method_decorator(staff_member_required, name='dispatch')
 class PendingPanelList(ListView):
 
@@ -65,7 +66,8 @@ class PendingPanelDetail(UpdateView):
                 'title': submission['title'],
                 'description': submission['description'],
                 'roomsize': int(submission['roomsize']),
-                'notes': submission['notes']
+                'notes': submission['notes'],
+                'tracks': submission.getlist('tracks')
             }
         return submitted
 
