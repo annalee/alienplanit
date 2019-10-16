@@ -44,9 +44,11 @@ class PanelAdmin(admin.ModelAdmin):
                        "notes",
                        "conference",
                        "tracks",
+                       "on_form",
                        "timeslot",
                        "room",
                        "panelists_locked",
+                       "publish",
                        "experience")
             }),
         ("Requirements", {

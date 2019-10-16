@@ -127,6 +127,7 @@ class Panel(models.Model):
         null=True, on_delete=models.SET_NULL, related_name="panels")
     tracks = models.ManyToManyField(Track,
         blank=True, related_name="panels")
+    on_form = models.BooleanField(default=False)
     timeslot = models.ForeignKey(Timeslot,
         blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
     av_required = models.BooleanField(default=False)
@@ -148,6 +149,7 @@ class Panel(models.Model):
     experience = models.ManyToManyField(Experience, blank=True)
     experience_required = models.BooleanField(default=False)
     panelists_locked = models.BooleanField(default=False)
+    publish = models.BooleanField(default=False)
 
 
     def experience_check(self):
