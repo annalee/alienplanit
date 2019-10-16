@@ -7,7 +7,18 @@ from .models import Timeslot, Room, Experience, Panelist, Panel, Conference, Tra
 class PanelAdminForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(PanelAdminForm, self).__init__(*args, **kwargs)
-        self.fields['tracks'].queryset = Track.objects.filter(conference=self.instance.conference)
+        self.fields['tracks'].queryset = Track.objects.filter(
+            conference=self.instance.conference)
+        self.fields['experience'].queryset = Experience.objects.filter(
+            conference=self.instance.conference)
+        self.fields['interested_panelists'].queryset = Panelist.objects.filter(
+            conference=self.instance.conference)
+        self.fields['required_panelists'].queryset = Panelist.objects.filter(
+            conference=self.instance.conference)
+        self.fields['final_panelists'].queryset = Panelist.objects.filter(
+            conference=self.instance.conference)
+        self.fields['moderator'].queryset = Panelist.objects.filter(
+            conference=self.instance.conference)
 
 @admin.register(Panel)
 class PanelAdmin(admin.ModelAdmin):
@@ -98,7 +109,10 @@ class TimeslotAdmin(admin.ModelAdmin):
 class PanelistAdminForm(ModelForm):
     def __init__(self, *args, **kwargs):
         super(PanelistAdminForm, self).__init__(*args, **kwargs)
-        self.fields['tracks'].queryset = Track.objects.filter(conference=self.instance.conference)
+        self.fields['tracks'].queryset = Track.objects.filter(
+            conference=self.instance.conference)
+        self.fields['experience'].queryset = Experience.objects.filter(
+            conference=self.instance.conference)
 
 @admin.register(Panelist)
 class PanelistAdmin(admin.ModelAdmin):
@@ -112,7 +126,6 @@ class PanelistAdmin(admin.ModelAdmin):
     search_fields = ['email', 'badge_name']
     inlines = [PanelFinalPanInline, PanelInline]
     list_editable = []
-    readonly_fields = ["conference"]
     list_filter = ["conference", "invite_again", "pronouns", "white"]
 
 @admin.register(Room)
