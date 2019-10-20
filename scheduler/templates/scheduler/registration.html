@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+		<style type="text/css">
+			#filterBase {
+				display: block;
+			}
+			.panelContainer {
+				display: none;
+			}
+			{% for slug in trackslugs %}
+			{% if forloop.last %}
+        	.{{slug}} .{{slug}}{% else %}
+        	.{{slug}} .{{slug}},
+    		{% endif %}{% endfor %} {	
+				display: flex;	
+			}
+		</style>
+		<script>
+			var allPanels = [
+				{% for slug in trackslugs %}'{{slug}}',{% endfor %}
+			];
+			var activePanels = allPanels.slice(); // start with all panels active
+
+			function filterPanels(eTarget) {
+				pName = eTarget.getAttribute('name');
+
+				if (pName === 'all') { // selecting all panel types
+
+					if(document.getElementById('filterBase').className.length > 0) {
+						activePanels = [];
+					} else {
+						activePanels = allPanels.slice();
+					}
+				} else if(activePanels.indexOf(pName) < 0) { // this is not currently selected
+					activePanels.push(pName);
+				} else {	//	this is currently selected and we need to deselect it
+					activePanels.splice(activePanels.indexOf(pName), 1);
+				}
+				document.getElementById('filterBase').className = activePanels.join(' ');
+			}
+		</script>
+	</head>
+	<body>
+		<form method="post">{% csrf_token %}
+		<div class="container border border-gray">
+			{{ form.non_field_errors }}
+			<div class="row mb-4">
+				<div class="col-12">
+					<h2>Your Information</h2>
+					<p>We value your participation in ConFusion, and we want to make sure we address you correctly, and refer to you correctly in our materials.</p>
+					<div class="form-group">
+						{{form.email.errors}}
+						<label for="{{ form.email.id_for_label }}" class="m-0">Email</label>
+						{{form.email}}
+						<!--
+						<input class="form-control" type="text" name="email" placeholder="Enter email address" />-->
+					</div>
+					<div class="form-group">
+						{{form.badge_name.errors}}
+						<label for="{{ form.badge_name.id_for_label }}" class="m-0">Badge Name</label>
+						{{form.badge_name}}
+						<!--
+						<input class="form-control" type="text" name="badge_name" placeholder="The name that will appear on your badge" />-->
+					</div>
+					<div class="form-group">
+						{{form.program_name.errors}}
+						<label for="{{ form.program_name.id_for_label }}" class="m-0">Your name as it should appear in the program book</label>
+						{{form.program_name}}
+						<!--
+						<input class="form-control" type="text" name="program_book_name" placeholder="A name you are professionally known by, for the schedule and tent cards." />-->
+						<small>We don't require panelists to use the name that appears on their ID, but we would prefer to put something wallet-name-shaped in the program and on your tent card. Please use a name under which you are published or known professionally, rather than an online handle or similar nickname.</small>
+					</div>
+					<div class="form-group">
+						{{form.pronouns.errors}}
+						<label for="{{ form.pronouns.id_for_label }}" class="m-0">Your Pronouns (she/her, they/them, etc.)</label>
+						{{form.pronouns}}
+						<!--
+						<input class="form-control" type="text" name="pronouns" placeholder="Enter your pronouns" />-->
+					</div>
+					<div class="form-group">
+						{{form.a11y.errors}}
+						<label for="{{ form.a11y.id_for_label }}" class="m-0">Should we be aware of any accessibility barriers that would prevent you from fully participating in ConFusion?</label>
+						{{form.a11y}}
+						<!--
+						<textarea class="form-control" name="a11y" placeholder="Accessibility Issues"></textarea>-->
+					</div>
+				</div>
+			</div>
+			<div class="row mb-4">
+				<div class="col-12">
+					<h2>Reading Slots</h2>
+					<p>
+						Most reading slots at ConFusion are "shared" readings, in which one 50-minute panel slot will be shared between three readers, each of whom should plan to read for 15 minutes or less.<br/><br/>
+						Because reading slots are limited, we prioritize authors with recent or upcoming publications. However, we encourage authors who don't have recent or forthcoming publications (including authors who are still working on that first sale) to apply for reading slots. We'll accommodate as many people as we can.
+					</p>
+					<div class="form-check mb-1">
+						{{form.reading_requested.errors}}
+						{{form.reading_requested}}
+						<!--<input class="form-check-input" type="checkbox" value="yes" name="reading_requested" id="panelistReadingRequested" />-->
+						<label class="form-check-label" for="{{ form.reading_requested.id_for_label }}">I would like to request a fifteen minute reading slot.</label>
+					</div>
+					<div class="form-check mb-1">
+						<input class="form-check-input" type="checkbox" value="Published2019" name="reading_requested" id="panelistPublished2019" />
+						<label class="form-check-label" for="panelistPublished2019">I had a work of fiction published in 2019.</label>
+					</div>
+					<div class="form-check mb-1">
+						<input class="form-check-input" type="checkbox" value="Published2020" name="reading_requested" id="panelistPublished2020" />
+						<label class="form-check-label" for="panelistPublished2020">I have a work of fiction coming out in 2020.</label>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-4">
+				<div class="col-12">
+					<h2>Mass Autographing Session</h2>
+					<p>
+						We run two Mass Autographing Sessions on Saturday afternoon. Each session is one hour, and they run concurrently with panels. If you'd like to sign at one of the autographing sessions, please let us know.
+					</p>
+					<div class="form-check mb-1">
+						{{form.signing_requested.errors}}
+						{{form.signing_requested}}
+						<!--<input class="form-check-input" type="checkbox" value="yes" name="signing_requested" id="panelistSigningRequested" />-->
+						<label class="form-check-label" for="{{ form.signing_requested.id_for_label }}">I would like to request a signing slot.</label>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-4">
+				<div class="col-12">
+					<h2>Panels</h2>
+					<p>
+						<button
+							type="button"
+							name="all" 
+							class="btn btn-primary btn-lg btn-block mx-1 my-2"
+							onclick="filterPanels(this)">Toggle All Categories</button>
+					</p>
+				</div>
+				<div class="col-12">
+					<div id="filterBase" class="{% for slug in trackslugs %}{{slug}}{% endfor %}">
+						{% for track, trackpanels in panels.items %}
+						<!-- PANEL CATEGORY CONTAINER -->
+						<div class="container border border-secondary rounded mb-3 pt-2">
+							<div class="row">
+								<div class="col">
+									<button
+									type="button"
+									name="{{track.slug}}"
+									class="btn panel-button btn-outline-secondary btn-lg btn-block mb-2 font-weight-bold text-dark"
+									onclick="filterPanels(this)">{{track.name}} Panels</button>
+								</div>
+							</div>
+							<div class="row panelContainer {{track.slug}}">
+								{% for panel in trackpanels %}
+								<!-- PANEL TEMPLATE -->
+								<div class="row mb-4 mx-2 pb-2 border-bottom border-secondary panel">
+									<div class="col-12">
+										<h4>{{panel.title}}</h4>
+										<p>{{panel.description}}</p>
+									</div>
+									<div class="col-xs-12 col-md-6 col-lg-4">
+										<div class="form-check mb-1">
+											<input class="form-check-input" type="checkbox" value="{{panel.id}}" name="panel_panelist" id="panel_panelist_{{panel.id}}" />
+											<label class="form-check-label" for="panel_panelist_{{panel.id}}">I would like to be on this panel.</label>
+										</div>
+									</div>
+									<div class="col-xs-12 col-md-6 col-lg-4">
+										<div class="form-check mb-1">
+											<input class="form-check-input" type="checkbox" value="{{panel.id}}" name="panel_moderator" id="panel_moderator_{{panel.id}}" />
+											<label class="form-check-label" for="panel_moderate_{{panel.id}}">I would like to moderate this panel.</label>
+										</div>
+									</div>
+									{% if panel.experience.all %}
+										{% for xp in panel.experience.all %}
+											<div class="col-12">
+												<div class="form-check mb-1">
+													<input class="form-check-input" type="checkbox" value="{{xp.id}}" name="panel_xp" id="panel_xp_{{panel.id}}" />
+													<label class="form-check-label" for="panel_experience_{{xp.id}}">{{xp.description}}</label>
+												</div>
+											</div>
+										{% endfor %}
+									{% endif %}
+								</div>
+								<!-- /PANEL TEMPLATE -->
+								{% endfor %}
+							</div>
+						</div>
+						<!-- /PANEL CATEGORY CONTAINER -->
+						{% endfor %}
+
+
+					</div>
+				</div>
+				<div class="col-12">
+					<p>
+						<button
+							type="button" 
+							name="all" 
+							class="btn btn-primary btn-lg btn-block mx-1 my-2"
+							onclick="filterPanels(this)">Toggle All Categories</button>
+					</p>
+				</div>
+			</div>
+			<p>
+			<div class="row mb-4">
+				<div class="col-12">
+					<h2>Demographic Information (OPTIONAL)</h2>
+					<p>ConFusion is committed to creating a diverse and inclusive community. To that end, we're gathering demographic data about our panelists so we can track our progress on recruiting panelists from under-represented races and genders, and so we can make room for in-depth discussions that consider underrepresented perspectives.</br></br>
+					We will not share individual results, but we may share aggregate data. We ask that you please not disclose information to us that you consider confidential or private. If you are not comfortable sharing this information with us, please skip this section and hit "submit" below. We value your participation in ConFusion, and look forward to seeing you in January.
+					</p>
+					<div class="form-group">
+						<label class="m-0">Your Gender</label>
+						<input class="form-control" type="text" name="gender" placeholder="Enter your gender" />
+					</div>
+					<div class="form-group">
+						<label class="m-0">Your Race</label>
+						<input class="form-control" type="text" name="race" placeholder="Enter your race" />
+					</div>
+					<h4>Are you a person of color?</h4>
+					<div class="form-check mb-1">
+						<input class="form-check-input" type="radio" value="yes" name="panelistPersonOfColor" id="PersonOfColorYes" />
+						<label class="form-check-label" for="panelistPersonOfColor">Yes</label>
+					</div>
+					<div class="form-check mb-1">
+						<input class="form-check-input" type="radio" value="no" name="panelistPersonOfColor" id="panelistPersonOfColorNo" />
+						<label class="form-check-label" for="panelistNotPersonOfColor">No</label>
+					</div>
+					<div class="form-check mb-1">
+						<input class="form-check-input" type="radio" value="comp" name="panelistPersonOfColor" id="panelistPersonOfColorComplicated" />
+						<label class="form-check-label" for="panelistPersonOfColor">It's Complicated</label>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-4">
+				<div class="col-12">
+					<hr>
+					<h2>You've Reached The End!</h2>
+					
+						<button 
+							name="submit" 
+							class="btn btn-primary btn-lg btn-block mx-1 my-2"
+							onclick=submit>Submit</button>
+					</p>
+				</div>
+			</div>
+		</div>
+	</form>
+	</body>
+</html>

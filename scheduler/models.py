@@ -97,6 +97,7 @@ class Panelist(models.Model):
     # creating all-white and all-male panels.
     email = models.CharField(max_length=280)
     badge_name = models.CharField(max_length=280)
+    program_name = models.CharField(max_length=280)
     conference = models.ForeignKey(Conference,
         null=True, blank=True, on_delete=models.SET_NULL, related_name="panelists")
     tracks = models.ManyToManyField(Track,
@@ -115,7 +116,7 @@ class Panelist(models.Model):
     staff_notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.badge_name
+        return self.program_name
 
 
 class Panel(models.Model):
@@ -127,6 +128,7 @@ class Panel(models.Model):
         null=True, on_delete=models.SET_NULL, related_name="panels")
     tracks = models.ManyToManyField(Track,
         blank=True, related_name="panels")
+    on_form = models.BooleanField(default=False)
     timeslot = models.ForeignKey(Timeslot,
         blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
     av_required = models.BooleanField(default=False)
@@ -148,6 +150,7 @@ class Panel(models.Model):
     experience = models.ManyToManyField(Experience, blank=True)
     experience_required = models.BooleanField(default=False)
     panelists_locked = models.BooleanField(default=False)
+    publish = models.BooleanField(default=False)
 
 
     def experience_check(self):

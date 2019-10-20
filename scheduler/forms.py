@@ -1,5 +1,5 @@
 from django import forms
-from .models import Panelist, Panel, Track, Conference
+from .models import Panelist, Panel, Track, Conference, Experience
 
 
 class PanelForm(forms.Form):
@@ -36,5 +36,62 @@ class PanelForm(forms.Form):
     roomsize = forms.IntegerField(
         label='Room Size',
         help_text="How many audience seats should the room have?",)
+
+
+class PanelistRegistrationForm(forms.Form):
+    email = forms.CharField(
+        label='Email',
+        max_length=280,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': "Enter email address"})
+        )
+    badge_name = forms.CharField(
+        label='Badge Name',
+        max_length=280,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': "The name that will appear on your badge"
+            })
+        )
+    program_name = forms.CharField(
+        label='Program Name',
+        max_length=280,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': "The name for your tent card and the program book"
+            })
+        )
+    pronouns = forms.CharField(
+        label='Pronouns',
+        max_length=280,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': "She/Her, They/Them, He/Him, etc"
+            })
+        )
+    a11y = forms.CharField(
+        label='Accessibility',
+        required=False,
+        widget=forms.Textarea(attrs={
+            'rows':4,
+            'class': 'form-control',
+            'placeholder': "If not, please leave this field blank"
+            }),
+        )
+    reading_requested = forms.BooleanField(
+        label='reading_requested',
+        required=False,
+        widget= forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+            })
+        )
+    signing_requested = forms.BooleanField(
+        label='signing_requested',
+        required=False,
+        widget= forms.CheckboxInput(attrs={
+            'class': 'form-check-input',
+            })
+        )
 
 

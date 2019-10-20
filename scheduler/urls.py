@@ -1,7 +1,9 @@
 from django.urls import path
 
-from . import views
+from .views import index, PanelistRegistrationView, PanelistRegistrationThanksView
 
 urlpatterns = [
-    path('', views.index, name='index'),
+    path('', index, name='index'),
+    path('registration/<slug:conference>/', PanelistRegistrationView.as_view(), name='panelistregistration'),
+    path('registration/<slug:conference>/thanks/', PanelistRegistrationThanksView.as_view(), name='panelistregistrationthanks'),
 ]
