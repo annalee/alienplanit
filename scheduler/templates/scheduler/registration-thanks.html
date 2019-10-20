@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load bootstrap4 %}
+
+{% block head %}
+<!-- I'm rendered in alienplanit/submissions/templates/submissions/panel.html 
+    If you need to add more items to <head> for this page only, here is where you do it!-->
+{% endblock head %}
+
+{% block main %}
+<!-- I'm rendered in alienplanit/submissions/templates/submissions/panel.html 
+    This is where to make changes to the main block for this page only.-->
+<div style="margin:2em">
+<h2>Thanks For Registering for {{conference.name}}!</h2>
+<p>We hope to have our panel schedule finalized by the end of November. We'll email you a copy of your schedule before we put it up on the site.</p>
+</div>
+{% endblock main %}

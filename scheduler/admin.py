@@ -74,18 +74,26 @@ class PanelAdmin(admin.ModelAdmin):
 
 class PanelIntPanInline(admin.TabularInline):
     model = Panel.interested_panelists.through
+    verbose_name = "Panels Interested In"
+    verbose_name_plural = "Panels Interested In"
 
 class PanelIntModInline(admin.TabularInline):
     model = Panel.interested_moderators.through
+    verbose_name = "Volunteered to Moderate"
+    verbose_name_plural = "Volunteered to Moderate"
 
 class PanelFinalPanInline(admin.TabularInline):
     model = Panel.final_panelists.through
+    verbose_name = "Panels"
+    verbose_name_plural = "Final Panels"
 
 class PanelInline(admin.TabularInline):
     model = Panel
     fields = ["title", "moderator", "final_panelists"]
-    readonly_fields = ["room", "timeslot", "final_panelists"]
+    readonly_fields = ["title", "room", "timeslot", "final_panelists"]
     extra = 1
+    verbose_name = "Moderating"
+    verbose_name_plural = "Moderating Panels"
 
 
 @admin.register(Track)
@@ -123,10 +131,10 @@ class PanelistAdmin(admin.ModelAdmin):
         kwargs['form'] = PanelistAdminForm
         return super().get_form(request, obj, **kwargs)
 
-    list_display = ["badge_name", "email", "pronouns",]
+    list_display = ["program_name", "email", "pronouns",]
     filter_horizontal = ["experience", "tracks"]
     search_fields = ['email', 'badge_name']
-    inlines = [PanelFinalPanInline, PanelInline]
+    inlines = [PanelIntPanInline, PanelIntModInline, PanelFinalPanInline, PanelInline]
     list_editable = []
     list_filter = ["conference", "invite_again", "pronouns", "white"]
 
