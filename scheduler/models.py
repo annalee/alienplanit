@@ -97,6 +97,7 @@ class Panelist(models.Model):
     # creating all-white and all-male panels.
     email = models.CharField(max_length=280)
     badge_name = models.CharField(max_length=280)
+    program_name = models.CharField(max_length=280)
     conference = models.ForeignKey(Conference,
         null=True, blank=True, on_delete=models.SET_NULL, related_name="panelists")
     tracks = models.ManyToManyField(Track,
@@ -115,7 +116,7 @@ class Panelist(models.Model):
     staff_notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return self.badge_name
+        return self.program_name
 
 
 class Panel(models.Model):
