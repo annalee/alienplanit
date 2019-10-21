@@ -38,7 +38,8 @@ class PanelistRegistrationView(FormView):
         panels = {}
         displaytracks = []
         for track in tracks:
-            trackpanels = conference_panels.filter(tracks=track)
+            trackpanels = conference_panels.filter(
+                tracks=track).order_by('title')
             if trackpanels:
                 panels[track] = trackpanels
                 displaytracks.append(track.slug)

@@ -137,7 +137,7 @@
 					</p>
 				</div>
 				<div class="col-12">
-					<div id="filterBase" class="{% for slug in trackslugs %}{{slug}}{% endfor %}">
+					<div id="filterBase" class=""> <!--{% for slug in trackslugs %}{{slug}} {% endfor %}-->
 						{% for track, trackpanels in panels.items %}
 						<!-- PANEL CATEGORY CONTAINER -->
 						<div class="container border border-secondary rounded mb-3 pt-2">
@@ -147,7 +147,8 @@
 									type="button"
 									name="{{track.slug}}"
 									class="btn panel-button btn-outline-secondary btn-lg btn-block mb-2 font-weight-bold text-dark"
-									onclick="filterPanels(this)">{{track.name}} Panels</button>
+									onclick="filterPanels(this)"
+									aria-expanded="true">{{track.name}} Panels</button>
 								</div>
 							</div>
 							<div class="row panelContainer {{track.slug}}">
@@ -171,13 +172,17 @@
 										</div>
 									</div>
 									{% if panel.experience.all %}
-										{% for xp in panel.experience.all %}
-											<div class="col-12">
+										<div class="col-12">
+											<br>
+											<h5 class="h6">
+												Priority for this panel will be given to panelists who have the following experience:
+											</h5>
+											{% for xp in panel.experience.all %}
 												<div class="form-check mb-1">
-													<input class="form-check-input" type="checkbox" value="{{xp.id}}" name="panel_xp" id="panel_xp_{{panel.id}}" />
-													<label class="form-check-label" for="panel_experience_{{xp.id}}">{{xp.description}}</label>
+														<input class="form-check-input" type="checkbox" value="{{xp.id}}" name="panel_xp" id="panel_xp_{{panel.id}}" />
+														<label class="form-check-label" for="panel_experience_{{xp.id}}">{{xp.description}}</label>
 												</div>
-											</div>
+										</div>
 										{% endfor %}
 									{% endif %}
 								</div>

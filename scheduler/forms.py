@@ -39,10 +39,10 @@ class PanelForm(forms.Form):
 
 
 class PanelistRegistrationForm(forms.Form):
-    email = forms.CharField(
+    email = forms.EmailField(
         label='Email',
         max_length=280,
-        widget=forms.TextInput(attrs={
+        widget=forms.EmailInput(attrs={
             'class': 'form-control',
             'placeholder': "Enter email address"})
         )
