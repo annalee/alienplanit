@@ -88,6 +88,8 @@ class PanelistRegistrationView(FormView):
             submission['gender'] in male_gender):
             man = True
 
+        notes = "gender: " + submission['gender'] + " race: " + submission['race']
+
         panelist = Panelist(
             email = data['email'],
             badge_name = data['badge_name'],
@@ -98,7 +100,8 @@ class PanelistRegistrationView(FormView):
             white = white,
             man = man,
             reading_requested = data['reading_requested'],
-            signing_requested = data['signing_requested']
+            signing_requested = data['signing_requested'],
+            staff_notes = notes
             )
         panelist.save()
 
