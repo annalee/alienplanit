@@ -18,7 +18,7 @@
 			var allPanels = [
 				{% for slug in trackslugs %}'{{slug}}',{% endfor %}
 			];
-			var activePanels = allPanels.slice(); // start with all panels active
+			var activePanels = []; // start with all panels closed, allPanels.slice() to open
 
 			function filterPanels(eTarget) {
 				pName = eTarget.getAttribute('name');
@@ -124,6 +124,21 @@
 			</div>
 			<div class="row mb-4">
 				<div class="col-12">
+					<h2>Friday Pro Track</h2>
+					<p>
+						During the day on Friday, we run a series of panels on the business side of writing, aimed at authors and industry professionals. Pro Track is now in its third year and has been well-attended, with many panelists arriving on Thursday night to settle in and hang out before pro track begins on Friday at noon.
+					</p>
+					<p>
+						We invite you to join us for pro track. Please let us know if you'll be joining us on Friday afternoon.
+					</p>
+					<div class="form-check mb-1">
+						<input class="form-check-input" type="checkbox" value="yes" name="pro-track-avail" id="pro-track-avail" />
+						<label class="form-check-label" for="pro-track-avail">Yes, I'll be there for pro track.</label>
+					</div>
+				</div>
+			</div>
+			<div class="row mb-4">
+				<div class="col-12">
 					<h2>Panels</h2>
 					<p>
 						<button
@@ -134,7 +149,7 @@
 					</p>
 				</div>
 				<div class="col-12">
-					<div id="filterBase" class="{% for slug in trackslugs %}{{slug}} {% endfor %}"> <!--{% for slug in trackslugs %}{{slug}} {% endfor %}-->
+					<div id="filterBase" class=""> <!--{% for slug in trackslugs %}{{slug}} {% endfor %}-->
 						{% for track, trackpanels in panels.items %}
 						<!-- PANEL CATEGORY CONTAINER -->
 						<div class="container border border-secondary rounded mb-3 pt-2">
@@ -155,6 +170,7 @@
 									<div class="col-12">
 										<h4>{{panel.title}}</h4>
 										<p>{{panel.description}}</p>
+										{% if track.slug == 'pro' %}<p class="font-weight-bold">This panel will run on Friday afternoon.</p>{% endif %}
 									</div>
 									<div class="col-xs-12 col-md-6 col-lg-4">
 										<div class="form-check mb-1">

@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from .models import Conference, Experience, Panelist, Panel, Track
 from .forms import PanelistRegistrationForm
 
+
 def index(request):
     return HttpResponse(
         '"Time, like water, expands when frozen." -Amal El-Mohtar')
@@ -57,7 +58,7 @@ class PanelistRegistrationView(FormView):
 
     def form_valid(self, form, **kwargs):
         submission = self.request.POST
-        conference = self.get_context_data()['conference']
+        con = self.get_context_data()['conference']
         data = form.cleaned_data
         panelist_ids = submission.getlist('panel_panelist')
         moderator_ids = submission.getlist('panel_moderator')
@@ -67,9 +68,9 @@ class PanelistRegistrationView(FormView):
         # we're handling those form elements manually. It's unlikely anyone will
         # bother to submit junk POST data, but we'll clean it to be safe.
         valid_panel_ids = [x.id for x in Panel.objects.filter(
-            conference=conference, on_form=True)]
+            conference=con, on_form=True)]
         valid_xp_ids = [x.id for x in Panel.objects.filter(
-            conference=conference)]
+            conference=con)]
 
         panelist_ids = [x for x in panelist_ids if x in valid_panel_ids]
         moderator_ids = [x for x in moderator_ids if x in valid_panel_ids]
@@ -91,7 +92,7 @@ class PanelistRegistrationView(FormView):
             email = data['email'],
             badge_name = data['badge_name'],
             program_name = data['program_name'],
-            conference = conference,
+            conference = con,
             pronouns = data['pronouns'],
             a11y = data['a11y'],
             white = white,
@@ -105,6 +106,8 @@ class PanelistRegistrationView(FormView):
         panelist.interested_mod.add(*moderator_ids)
         panelist.experience.add(*xp_ids)
 
+        if 'pro-track-avail' in submission.keys():
+            panelist.tracks.add(Track.objects.get(conference=con, slug='pro'))
 
         return super().form_valid(form)
 
