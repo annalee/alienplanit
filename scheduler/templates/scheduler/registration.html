@@ -9,10 +9,7 @@
 			.panelContainer {
 				display: none;
 			}
-			{% for slug in trackslugs %}
-			{% if forloop.last %}
-        	.{{slug}} .{{slug}}{% else %}
-        	.{{slug}} .{{slug}},
+			{% for slug in trackslugs %}{% if forloop.last %}.{{slug}} .{{slug}}{% else %}.{{slug}} .{{slug}},
     		{% endif %}{% endfor %} {	
 				display: flex;	
 			}
@@ -137,7 +134,7 @@
 					</p>
 				</div>
 				<div class="col-12">
-					<div id="filterBase" class=""> <!--{% for slug in trackslugs %}{{slug}} {% endfor %}-->
+					<div id="filterBase" class="{% for slug in trackslugs %}{{slug}} {% endfor %}"> <!--{% for slug in trackslugs %}{{slug}} {% endfor %}-->
 						{% for track, trackpanels in panels.items %}
 						<!-- PANEL CATEGORY CONTAINER -->
 						<div class="container border border-secondary rounded mb-3 pt-2">
