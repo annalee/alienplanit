@@ -72,9 +72,9 @@ class PanelistRegistrationView(FormView):
         valid_xp_ids = [x.id for x in Panel.objects.filter(
             conference=con)]
 
-        panelist_ids = [x for x in panelist_ids if x in valid_panel_ids]
-        moderator_ids = [x for x in moderator_ids if x in valid_panel_ids]
-        xp_ids = [x for x in xp_ids if x in valid_xp_ids]
+        panelist_ids = [x for x in panelist_ids if int(x) in valid_panel_ids]
+        moderator_ids = [x for x in moderator_ids if int(x) in valid_panel_ids]
+        xp_ids = [x for x in xp_ids if int(x) in valid_xp_ids]
 
         white = True
         if ('panelistPersonOfColor' in submission.keys() and 
