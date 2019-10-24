@@ -69,7 +69,7 @@ class PanelistRegistrationView(FormView):
         # bother to submit junk POST data, but we'll clean it to be safe.
         valid_panel_ids = [x.id for x in Panel.objects.filter(
             conference=con, on_form=True)]
-        valid_xp_ids = [x.id for x in Panel.objects.filter(
+        valid_xp_ids = [x.id for x in Experience.objects.filter(
             conference=con)]
 
         panelist_ids = [x for x in panelist_ids if int(x) in valid_panel_ids]
