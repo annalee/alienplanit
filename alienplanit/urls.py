@@ -22,5 +22,5 @@ urlpatterns = [
     path('', views.index),
     path('scheduler/', include('scheduler.urls')),
     path('submissions/', include('submissions.urls')),
-    path('admin/', admin.site.urls),
+    path('concom/', admin.site.urls),
 ]
