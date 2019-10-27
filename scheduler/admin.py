@@ -13,6 +13,8 @@ class PanelAdminForm(ModelForm):
             conference=self.instance.conference)
         self.fields['interested_panelists'].queryset = Panelist.objects.filter(
             conference=self.instance.conference)
+        self.fields['interested_moderators'].queryset = Panelist.objects.filter(
+            conference=self.instance.conference)
         self.fields['required_panelists'].queryset = Panelist.objects.filter(
             conference=self.instance.conference)
         self.fields['final_panelists'].queryset = Panelist.objects.filter(
