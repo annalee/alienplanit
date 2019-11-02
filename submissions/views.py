@@ -186,6 +186,19 @@ def panel(request):
 @xframe_options_exempt
 @csrf_exempt
 def panelist(request):
+
+    # Panel submissions are closed. TODO: move this into an admin setting
+    textblock, created = Textblock.objects.get_or_create(slug="panelistformclosed", conference="ConFusion2020")
+    if created:
+        textblock.title = "The Panelist Submission Form Is Closed"
+        textblock.save()
+    context = {
+        'title': textblock.title,
+        'body': textblock.body,
+    }
+    return render(request, 'submissions/panelist.html', context)
+
+
     if request.method == 'POST':
         panelistform = PanelistForm(request.POST)
         if panelistform.is_valid():

@@ -10,6 +10,7 @@
 <div style="margin:2em">
 <h2>{{ title }}</h2>
 <p>{{ body|safe }}</p>
+{% if panelform %}
 <form action="{% url 'panelist' %}" method="post">
     {% csrf_token %}
     {% bootstrap_form panelistform %}
@@ -19,5 +20,6 @@
     </button>
     {% endbuttons %}
 </form>
+{% endif %}
 </div>
 {% endblock main %}
