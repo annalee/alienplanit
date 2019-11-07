@@ -6,10 +6,12 @@ class Panelist(models.Model):
     INVITE = "yes"
     NOINVITE = "no"
     PENDING = "pen"
+    WITHDREW = "w"
     STATUS_CHOICES = [
         (INVITE, 'Invited'),
         (NOINVITE, 'Not Invited'),
         (PENDING, 'Pending'),
+        (WITHDREW, 'Withdrew')
     ]
 
     email = models.CharField(max_length=280)
@@ -39,12 +41,10 @@ class Panel(models.Model):
     ACCEPTED = "yes"
     REJECTED = "no"
     PENDING = "pen"
-    WITHDREW = "w"
     STATUS_CHOICES = [
         (ACCEPTED, 'Accepted'),
         (REJECTED, 'Rejected'),
         (PENDING, 'Pending'),
-        (WITHDREW, 'Withdrew')
     ]
 
     title = models.CharField(max_length=280)
