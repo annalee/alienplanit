@@ -39,10 +39,12 @@ class Panel(models.Model):
     ACCEPTED = "yes"
     REJECTED = "no"
     PENDING = "pen"
+    WITHDREW = "w"
     STATUS_CHOICES = [
         (ACCEPTED, 'Accepted'),
         (REJECTED, 'Rejected'),
         (PENDING, 'Pending'),
+        (WITHDREW, 'Withdrew')
     ]
 
     title = models.CharField(max_length=280)
