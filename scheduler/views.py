@@ -127,3 +127,16 @@ class PanelistRegistrationThanksView(TemplateView):
 
         context['conference'] = conference
         return context
+
+class PanelistRegistrationClosedView(TemplateView):
+
+    template_name = "scheduler/registration-closed.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        conference = get_object_or_404(
+            Conference, slug=kwargs['conference'])
+
+        context['conference'] = conference
+        return context
