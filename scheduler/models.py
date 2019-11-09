@@ -102,6 +102,8 @@ class Panelist(models.Model):
         null=True, blank=True, on_delete=models.SET_NULL, related_name="panelists")
     tracks = models.ManyToManyField(Track,
         blank=True, related_name="panelists")
+    available_from = models.DateTimeField(blank=True, null=True)
+    available_until = models.DateTimeField(blank=True, null=True)
     pronouns = models.CharField(max_length=280)
     a11y = models.TextField(blank=True)
     inarow = models.IntegerField(default=2,
@@ -129,6 +131,8 @@ class Panel(models.Model):
     tracks = models.ManyToManyField(Track,
         blank=True, related_name="panels")
     on_form = models.BooleanField(default=False)
+    start_time = models.DateTimeField(blank=True, null=True)
+    end_time = models.DateTimeField(blank=True, null=True)
     timeslot = models.ForeignKey(Timeslot,
         blank=True, null=True, on_delete=models.SET_NULL, related_name="panels")
     av_required = models.BooleanField(default=False)

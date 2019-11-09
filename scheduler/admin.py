@@ -49,6 +49,8 @@ class PanelAdmin(admin.ModelAdmin):
                        "conference",
                        "tracks",
                        "on_form",
+                       "start_time",
+                       "end_time",
                        "timeslot",
                        "room",
                        "panelists_locked",
@@ -144,9 +146,8 @@ class PanelistAdmin(admin.ModelAdmin):
 
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
-    list_display = ["name", "capacity", "category", "av"]
-    list_editable = ["capacity", "category", "av"]
-    readonly_fields = ["conference"]
+    list_display = ["name", "capacity", "category", "av", "conference"]
+    list_editable = ["capacity", "category", "av", "conference"]
     list_filter = ["conference"]
 
 scheduler_models = [Experience, Conference]
