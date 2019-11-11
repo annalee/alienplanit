@@ -1,4 +1,7 @@
 from django.db import models
+from django.db.models import F, Q
+
+from django.db.models.constraints import CheckConstraint
 
 class Conference(models.Model):
     slug = models.SlugField(max_length=50)
@@ -170,4 +173,9 @@ class Panel(models.Model):
 
     class Meta:
         unique_together = ("room", "timeslot", "conference")
+        constraints = [
+            CheckConstraint(
+                check=Q(start_time__lte=F('end_time')),
+                name="valid-time")
+        ]
 
