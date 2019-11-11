@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>ConFusion 2020 Schedule</title>
+		<link rel="stylesheet" 
+			href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" 
+			integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" 
+			crossorigin="anonymous">
+		<!--<link rel="stylesheet" 
+			id="responsiveblogily-google-fonts-css" 
+			href="//fonts.googleapis.com/css?family=Lato%3A300%2C400%2C700%2C900%7CMerriweather%3A400%2C700&amp;ver=5.2.4" 
+			type="text/css" 
+			media="all">-->
+		<style type="text/css">
+			/* ConFusion 2020 Styles */
+			.header, .navigation {
+				background: #000000;
+				border-bottom: 1px solid #8224e3;
+			}
+			.navigation a {
+				color: #ffffff;
+				font-weight: bold;
+			}
+			/*h3, .panel-button {
+				font-family: Merriweather;
+			}*/
+
+			/* filter styles and logic */
+
+			.panel-container, .panel, .details {
+				display: none;
+			}
+			/* expand/collapse days */
+			body.friday .day-container.friday .panel-container,
+			body.saturday .day-container.saturday .panel-container,
+			body.sunday .day-container.sunday .panel-container,
+
+			/* filter by track  */
+			body.literature .panel.literature,
+			body.pro .panel.pro,
+			body.kidfusion .panel.kidfusion,
+			body.costuming .panel.costuming,
+
+			/* expand/collapse detail view */
+			body.expanded .details{	
+				display: block;
+			}
+
+			body.literature button.btn.literature,
+			body.pro button.btn.pro,
+			body.kidfusion button.btn.kidfusion,
+			body.costuming button.btn.costuming {
+				background: #6c757d;
+				color: #ffffff;
+			}
+
+			/* /filter styles and logic */
+		</style>
+		<script>
+
+			/*list of all days  */
+			var allDays = [
+				'friday',
+				'saturday',
+				'sunday'
+			];
+
+			/* list of all tracks */
+			var allTracks = [
+				'literature',
+				'pro',
+				'costuming',
+				'kidfusion'
+			];
+
+			/* start with all days open */
+			var activeDays = allDays.slice();
+
+			/* start with all panels visible */
+			var activeTracks = allTracks.slice();
+
+			/* start with panel details visible */
+			var isExpanded = true;
+
+			/* open and close day panels */
+			function toggleDay(eTarget) {
+				pName = eTarget.getAttribute('name');
+
+				if (pName === 'all') { // selecting all panel days. Currently not used
+					if(activeDays.length > 0) {
+						activeDays = [];
+					} else {
+						activeDays = allDays.slice();
+					}
+				} else if(activeDays.indexOf(pName) < 0) { // this is not currently selected
+					activeDays.push(pName);
+				} else {	//	this is currently selected and we need to deselect it
+					activeDays.splice(activeDays.indexOf(pName), 1);
+				}
+				setFilters();
+			}
+
+			/*  show and hide panels from specific tracks*/
+			function filterByTrack(eTarget) {
+				pName = eTarget.getAttribute('name');
+
+				if (pName === 'all') { // selecting all panel types
+					if(activeTracks.length > 0) {
+						console.log('closing all tracks');
+						activeTracks = [];
+					} else {
+						console.log('opening all tracks');
+						activeTracks = allTracks.slice();
+					}
+				} else if(activeTracks.indexOf(pName) < 0) { // this is not currently selected
+					activeTracks.push(pName);
+				} else {	//	this is currently selected and we need to deselect it
+					activeTracks.splice(activeTracks.indexOf(pName), 1);
+				}
+				setFilters();
+			}
+
+			/* toggle detail view for panels */
+			function toggleDetails() {
+				isExpanded = !isExpanded;
+				setFilters();
+			}
+
+			/* write the filter set to the <body/> element */
+			function setFilters() {
+				var filterString 
+					= activeTracks.join(' ') 
+					+ ' ' 
+					+ activeDays.join(' ')
+					+ ' '
+					+ (isExpanded ? 'expanded' : '');
+				document.getElementsByTagName('body')[0].className = filterString;
+			}
+		</script>
+	</head>
+	<body class="friday saturday sunday literature pro kidfusion costuming expanded">
+		<div id="panelBase" class="container">
+			<div class="row header py-3">
+				<div class="col-12 py-3 text-center">
+					<a href="https://2020.confusionsf.org/"><img src="https://2020.confusionsf.org/wp-content/uploads/2019/07/cropped-ConFusion-2020-Web-update.jpg"/></a>
+				</div>
+			</div>
+			<div class="row navigation py-4 mb-3">
+				<div class="col-12">
+					<a href="https://2020.confusionsf.org/">&#x2190; BACK TO CONFUSION 2020</a>
+				</div>
+			</div>
+			<div class="row filters">
+				<div class="col-12 mb-2 px-0">
+					<button name="all" class="btn btn-primary mb-1 all" onclick="filterByTrack(this)">TOGGLE ALL TRACKS</button>
+					<button name="literature" class="btn btn-outline-secondary mb-1 literature" onclick="filterByTrack(this)">Literature</button>
+					<button name="pro" class="btn btn-outline-secondary mb-1 pro" onclick="filterByTrack(this)">Pro</button>
+					<button name="kidfusion" class="btn btn-outline-secondary mb-1 kidfusion" onclick="filterByTrack(this)">KidFusion</button>
+					<button name="costuming" class="btn btn-outline-secondary mb-1 costuming" onclick="filterByTrack(this)">Costuming</button>
+					<button class="btn btn-primary mb-1" onclick="toggleDetails()">Toggle Detail View</button>
+				</div>
+			</div>
+			<div class="row day-container friday mb-3">
+				<div class="col-12 px-0">
+					<button 
+						name="friday" 
+						class="btn panel-button btn-outline-secondary btn-lg btn-block mb-2 font-weight-bold text-dark" 
+						onclick="toggleDay(this)">Friday Panels</button>
+				</div>
+				<div class="col-12 panel-container">
+					<div class="row panel literature">
+						<div class="col-12 border rounded py-2 my-1">
+							<div class="row mb-1">
+								<div class="col-12"><h3 class="border-bottom">Literature Panel</h3></div>
+								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
+								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
+								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
+								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Literature</div>
+							</div>
+							<div class="row mb-1 details">
+								<div class="col-12 my-1 description">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
+								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
+							</div>
+						</div>
+					</div>
+					<div class="row panel pro">
+						<div class="col-12 border rounded py-2 my-1">
+							<div class="row mb-1">
+								<div class="col-12"><h3>Pro Panel</h3></div>
+								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
+								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
+								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
+								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Literature</div>
+							</div>
+							<div class="row mb-1 details">
+								<div class="col-12 my-1 description">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
+								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
+							</div>
+						</div>
+					</div>
+					<div class="row panel pro">
+						<div class="col-12 border rounded py-2 my-1">
+							<div class="row mb-1">
+								<div class="col-12"><h3>Another Pro Panel</h3></div>
+								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
+								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
+								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
+								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Literature</div>
+							</div>
+							<div class="row mb-1 details">
+								<div class="col-12 my-1 description">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
+								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row day-container saturday mb-3">
+				<div class="col-12 px-0">
+					<button 
+						name="saturday" 
+						class="btn panel-button btn-outline-secondary btn-lg btn-block mb-2 font-weight-bold text-dark" 
+						onclick="toggleDay(this)">Saturday Panels</button>
+				</div>
+				<div class="col-12 panel-container">
+
+					<div class="row panel kidfusion">
+						<div class="col-12 border rounded py-2 my-1">
+							<div class="row">
+								<div class="col-12"><h3>This is a KidFusion Panel</h3></div>
+								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
+								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
+								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
+								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Media</div>
+							</div>
+							<div class="row my-1 details">
+								<div class="col-12 description my-1">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
+								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
+							</div>
+						</div>
+					</div>
+					
+					<div class="row panel costuming">
+						<div class="col-12 border rounded py-2 my-1">
+							<div class="row">
+								<div class="col-12"><h3>Classy Costuming Panel</h3></div>
+								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
+								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
+								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
+								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Media</div>
+							</div>
+							<div class="row my-1 details">
+								<div class="col-12 description my-1">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
+								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
+							</div>
+						</div>
+					</div>
+					
+					<div class="row panel costuming">
+						<div class="col-12 border rounded py-2 my-1">
+							<div class="row">
+								<div class="col-12"><h3>Stupendous Costuming Panel</h3></div>
+								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
+								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
+								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
+								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Media</div>
+							</div>
+							<div class="row my-1 details">
+								<div class="col-12 description my-1">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
+								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="row day-container sunday mb-3">
+				<div class="col-12 px-0">
+					<button 
+						name="sunday" 
+						class="btn panel-button btn-outline-secondary btn-lg btn-block mb-2 font-weight-bold text-dark" 
+						onclick="toggleDay(this)">Sunday Panels</button>
+				</div>
+				<div class="col-12 panel-container">
+					<div class="row panel costuming">
+						<div class="col-12 border rounded py-2 my-1">
+							<div class="row">
+								<div class="col-12"><h3>The Business of Episodic Storytelling</h3></div>
+								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
+								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
+								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
+								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Costume</div>
+							</div>
+							<div class="row my-1 details">
+								<div class="col-12 my-1 description">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
+								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>
