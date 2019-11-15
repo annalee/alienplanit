@@ -18,6 +18,8 @@ class Day(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
 
+    def __str__(self):
+        return self.conference.slug + str(self.day)
 
 class Timeslot(models.Model):
     # We're not using datetime for this because the system doesn't actually need
