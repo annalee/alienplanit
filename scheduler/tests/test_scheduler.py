@@ -22,8 +22,11 @@ class Test_Scheduler(TestCase):
         panelrooms = RoomFactory.create_batch(6, conference=con)
         readingrooms = RoomFactory.create_batch(2,
             category=Room.READING, conference=con)
-        tracks = TrackFactory.create_batch(6,
+        tracks = TrackFactory.create_batch(5,
                     conference=con)
+        tracks.append(TrackFactory(
+            start=datetime.datetime(year=2020, month=1, day=17, hour=12),
+            end=datetime.datetime(year=2020, month=1, day=17, hour=18)))
         panelists = PanelistFactory.create_batch(110, conference=con)
         panels = PanelFactory.create_batch(80,
                 conference=con,
@@ -32,7 +35,7 @@ class Test_Scheduler(TestCase):
         day1 = DayFactory(
                     conference=con,
                     day=datetime.date(year=2020, month=1, day=17),
-                    start_time=datetime.time(hour=17),
+                    start_time=datetime.time(hour=12),
                     end_time=datetime.time(hour=20))
         day2 = DayFactory(
                     conference=con,
