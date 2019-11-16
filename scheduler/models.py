@@ -1,4 +1,8 @@
 from django.db import models
+from django.db.models import F, Q
+
+from django.db.models.constraints import CheckConstraint
+
 
 class Conference(models.Model):
     slug = models.SlugField(max_length=50)
@@ -6,6 +10,16 @@ class Conference(models.Model):
 
     def __str__(self):
         return self.slug
+
+
+class Day(models.Model):
+    conference = models.ForeignKey(Conference, related_name='days', on_delete=models.CASCADE)
+    day = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+
+    def __str__(self):
+        return self.conference.slug + str(self.day)
 
 class Timeslot(models.Model):
     # We're not using datetime for this because the system doesn't actually need
@@ -84,6 +98,11 @@ class Track(models.Model):
     name = models.CharField(max_length=280)
     conference = models.ForeignKey(Conference,
         null=True, on_delete=models.SET_NULL, related_name="tracks")
+    start = models.DateTimeField(blank=True, null=True)
+    end = models.DateTimeField(blank=True, null=True)
+    limit_concurrent = models.IntegerField(
+        help_text="Limit how many panels can run at once (zero for no limit)",
+        default=0)
 
     def __str__(self):
         return "[" + self.conference.slug+"] " + self.name
@@ -170,4 +189,9 @@ class Panel(models.Model):
 
     class Meta:
         unique_together = ("room", "timeslot", "conference")
+        constraints = [
+            CheckConstraint(
+                check=Q(start_time__lte=F('end_time')),
+                name="valid-time")
+        ]
 
