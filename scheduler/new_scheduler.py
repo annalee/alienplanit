@@ -219,7 +219,10 @@ def schedule_panels(conference):
             total_hours += calculate_overlap(start, end, track.start, track.end)
 
         # get the floor of panels per hour
-        base_panels_per_hour = total_panels//total_hours
+        if total_hours:
+            base_panels_per_hour = total_panels//total_hours
+        else:
+            continue
 
         # randomly assign which hours get the extra panel above the floor number
         # of panels per hour by assembling a deck for the hours to draw from.
