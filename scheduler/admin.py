@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.forms import ModelForm
 
-from .models import Timeslot, Room, Experience, Panelist, Panel, Conference, Track
+from .models import Timeslot, Room, Experience, Panelist, Panel, Conference, Track, Day
 
 
 class PanelAdminForm(ModelForm):
@@ -149,6 +149,12 @@ class PanelistAdmin(admin.ModelAdmin):
 class RoomAdmin(admin.ModelAdmin):
     list_display = ["name", "capacity", "category", "av", "conference"]
     list_editable = ["capacity", "category", "av", "conference"]
+    list_filter = ["conference"]
+
+@admin.register(Day)
+class DayAdmin(admin.ModelAdmin):
+    list_display = ["conference", "start_time", "end_time"]
+    list_editable = ["start_time", "end_time"]
     list_filter = ["conference"]
 
 scheduler_models = [Experience, Conference]
