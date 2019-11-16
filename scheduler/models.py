@@ -136,6 +136,9 @@ class Panelist(models.Model):
     invite_again = models.BooleanField(default=True)
     staff_notes = models.TextField(blank=True, null=True)
 
+    def meta(self):
+        ordering = ['program_name']
+
     def __str__(self):
         return self.program_name
 
