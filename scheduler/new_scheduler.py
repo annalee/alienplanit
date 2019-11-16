@@ -181,7 +181,7 @@ def calculate_overlap(start1, end1, start2, end2):
         else:
             # The track continues past the end of the day
             overlap = end1 - start2
-        return overlap.seconds % 3600 // 60
+        return overlap.total_seconds() % 3600 // 60
     # 2 starts before or at 1's start and ends after 1 starts
     elif start2 <= start1 and end2 > start1:
         if end2 >= end1:
