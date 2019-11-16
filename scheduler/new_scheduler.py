@@ -3,7 +3,7 @@ import datetime
 
 from django.db.models import Count, Lookup, Q
 
-from scheduler.models import Day, Room, Panelist, Panel, Experience, Conference
+from scheduler.models import Day, Room, Panelist, Panel, Experience, Conference, Track
 
 
 def check_bench(potential_panels, need_break):
@@ -126,6 +126,21 @@ def add_exclusions(panel):
             final_panelists=panel.moderator)
     return exclusions
 
+def get_will_need_break(hour, panelists):
+    need_break = []
+    for panelist in panelists:
+        max_on = datetime.timedelta(hours=panelist.inarow)
+        end_window = hour + max_on
+        upcoming_panel_count = panelist.panels.filter(
+            end_time__gte=hour,
+            end_time__lte=end_window).count()
+        upcoming_panel_count += panelist.moderating.filter(
+            end_time__gte=hour,
+            end_time__lte=end_window).count()
+        if upcoming_panel_count == panelist.inarow:
+            need_break.append(panelist)
+    return need_break
+
 def get_break_needed(hour, panelists):
     need_break = []
     for panelist in panelists:
@@ -151,8 +166,8 @@ def get_hour_list(day):
 
     hours = []
     while current < end:
-        current += hour
         hours.append(current)
+        current += hour
     return hours
 
 
@@ -226,6 +241,7 @@ def schedule_panels(conference):
                 end_time__gt=hour,
                 ).select_related('room'))
             need_break = get_break_needed(hour, panelists)
+            need_break += get_will_need_break(hour, panelists)
             booked_rooms = [p.room for p in slotted_panels]
             exclusions  = Q(room__in=booked_rooms)
             exclusions |= Q(required_panelists__in=need_break)
@@ -302,16 +318,14 @@ def schedule_panels(conference):
                 panel.save()
 
 
-            # Regenerating slotted_panels to hit the db again because I'm
-            # getting duplication issues and frankly I'm at my wit's end to what
-            # could possibly be causing them so let's blame caching, why not
+            # Regenerating slotted_panels from the db because the existing list
+            # is causing panelists to get double-booked. Honestly don't under-
+            # -stand how this could be a caching issue but hey.
             slotted_panels = list(Panel.objects.filter(
                 conference=conference,
                 start_time__lte=hour,
                 end_time__gt=hour,
                 ).select_related('room'))
-            # it makes zero sense that this fixed the problem but it seems to
-            # have done so I'm not going to mess with it.
 
             # putting panels with moderators first so the same mods don't get
             # booked for other panels in the slot.
@@ -319,7 +333,6 @@ def schedule_panels(conference):
             slotted_no_mod =  [x for x in slotted_panels if not x.moderator]
             slotted_panels = slotted_with_mod + slotted_no_mod
             for panel in slotted_panels:
-                add_exclusions(panel)
                 for panelist in panel.required_panelists.all():
                     if panelist is not panel.moderator:
                         panel.final_panelists.add(panelist)
@@ -334,8 +347,11 @@ def schedule_panels(conference):
                             num_scheduled=Count('panels')+Count('moderating'),
                             num_moderating=Count('moderating')).exclude(
                                 Q(id__in=need_break_ids) |
-                                Q(id__in=[x.moderator.id for x in slotted_panels if x.moderator]) |
-                                Q(panels__id__in=[x.id for x in slotted_panels]) |
+                                Q(moderating__in=slotted_panels) |
+                                Q(panels__in=slotted_panels) |
+                                Q(required_for__in=slotted_panels) |
+                                # Q(id__in=[x.moderator.id for x in slotted_panels if x.moderator]) |
+                                # Q(panels__id__in=[x.id for x in slotted_panels]) |
                                 Q(num_moderating__gte=3) |
                                 Q(num_scheduled__gte=5)
                             ).order_by(
@@ -356,6 +372,7 @@ def schedule_panels(conference):
                             num_scheduled=Count('panels') + Count('moderating')
                             ).exclude(Q(id__in=need_break_ids) |
                                       Q(id__in=modids) |
+                                      Q(required_for__id__in=[x.id for x in slotted_panels]) |
                                       Q(panels__id__in=[x.id for x in slotted_panels]) |
                                       Q(num_scheduled__gte=5)
                             ).order_by(
@@ -364,7 +381,6 @@ def schedule_panels(conference):
                             panelist.panels.add(panel)
                             panelist.save()
                 panel.save()
-                add_exclusions(panel)
 
     print("Couldn't schedule the following panels:")
     total = 0
@@ -379,26 +395,48 @@ def schedule_panels(conference):
 
 def schedule_readings(conference, room):
     reading_ids = []
-    for timeslot in Timeslot.objects.filter(conference=conference,
-                                         reading_slots__gte=1):
-        need_break_ids = [x.id for x in get_break_needed(timeslot)]
-        readers = Panelist.objects.filter(
-            reading_requested=True).exclude(
-            id__in=reading_ids).exclude(
-            id__in=need_break_ids)[:3]
+    days = conference.days.all()
+    panelists = Panelist.objects.filter(
+        conference=conference, reading_requested=True)
+    # Get the longest track and run readings during that
+    tracks_by_length = []
+    for track in Track.objects.filter(conference=conference):
+        tracks_by_length.append((track.start - track.end, track.id))
+    tracks_by_length.sort()
+    reading_track = Track.objects.get(id=tracks_by_length[-1][1])
 
-        title = "Reading: "
-        for reader in readers:
-            title += reader.badge_name
-            title += ", "
-        groupreading = Panel.objects.create(conference=conference,
-                             title=title,
-                             timeslot=timeslot,
-                             room=room,
-                             av_required=False,
-                             roomsize = 25)
-        groupreading.final_panelists.set(readers)
-        groupreading.save()
+    for day in days:
+        for hour in get_hour_list(day):
+            if hour <= reading_track.start:
+                continue
+            elif hour >= reading_track.end:
+                return "Done."
+            slotted_panels = Panel.objects.filter(
+                conference=conference,
+                start_time__lte=hour,
+                end_time__gt=hour)
+            need_break_ids = [x.id for x in get_break_needed(hour, panelists)]
+            need_break_ids += [x.id for x in get_will_need_break(hour, panelists)]
+            readers = panelists.exclude(
+                Q(id__in=reading_ids) |
+                Q(id__in=need_break_ids) |
+                Q(panels__in=slotted_panels) |
+                Q(moderating__in=slotted_panels)
+                )[:3]
 
-        reading_ids.extend([x.id for x in readers])
-        print("Scheduled", groupreading.title, "on", timeslot.day, "at", timeslot.time)
+            title = "Reading: "
+            for reader in readers:
+                title += reader.program_name
+                title += ", "
+            groupreading = Panel.objects.create(conference=conference,
+                                 title=title,
+                                 start_time=hour,
+                                 end_time=hour + datetime.timedelta(minutes=50),
+                                 room=room,
+                                 av_required=False,
+                                 roomsize = 25)
+            groupreading.final_panelists.set(readers)
+            groupreading.save()
+
+            reading_ids.extend([x.id for x in readers])
+            print("Scheduled", groupreading.title, "on", day.day, "at", groupreading.start_time)
