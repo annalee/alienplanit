@@ -126,33 +126,26 @@ def add_exclusions(panel):
             final_panelists=panel.moderator)
     return exclusions
 
-def get_will_need_break(hour, panelists):
-    need_break = []
-    for panelist in panelists:
-        max_on = datetime.timedelta(hours=panelist.inarow)
-        end_window = hour + max_on
-        upcoming_panel_count = panelist.panels.filter(
-            end_time__gte=hour,
-            end_time__lte=end_window).count()
-        upcoming_panel_count += panelist.moderating.filter(
-            end_time__gte=hour,
-            end_time__lte=end_window).count()
-        if upcoming_panel_count == panelist.inarow:
-            need_break.append(panelist)
-    return need_break
-
 def get_break_needed(hour, panelists):
     need_break = []
     for panelist in panelists:
         max_on = datetime.timedelta(hours=panelist.inarow)
         start_window = hour - max_on
+        end_window = hour + max_on
         recent_panel_count = panelist.panels.filter(
             end_time__gte=start_window,
             end_time__lte=hour).count()
         recent_panel_count += panelist.moderating.filter(
             end_time__gte=start_window,
             end_time__lte=hour).count()
-        if recent_panel_count == panelist.inarow:
+        upcoming_panel_count = panelist.panels.filter(
+            end_time__gte=hour,
+            end_time__lte=end_window).count()
+        upcoming_panel_count += panelist.moderating.filter(
+            end_time__gte=hour,
+            end_time__lte=end_window).count()
+        if (recent_panel_count == panelist.inarow
+            or upcoming_panel_count == panelist.inarow):
             need_break.append(panelist)
     return need_break
 
@@ -246,7 +239,6 @@ def schedule_panels(conference):
                 end_time__gt=hour,
                 ).select_related('room'))
             need_break = get_break_needed(hour, panelists)
-            need_break += get_will_need_break(hour, panelists)
             booked_rooms = [p.room for p in slotted_panels]
             exclusions  = Q(room__in=booked_rooms)
             exclusions |= Q(required_panelists__in=need_break)
@@ -422,7 +414,6 @@ def schedule_readings(conference, room):
                 start_time__lte=hour,
                 end_time__gt=hour)
             need_break_ids = [x.id for x in get_break_needed(hour, panelists)]
-            need_break_ids += [x.id for x in get_will_need_break(hour, panelists)]
             readers = panelists.exclude(
                 Q(id__in=reading_ids) |
                 Q(id__in=need_break_ids) |
