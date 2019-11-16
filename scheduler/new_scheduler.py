@@ -222,7 +222,8 @@ def schedule_panels(conference):
         if total_hours:
             base_panels_per_hour = total_panels//total_hours
         else:
-            base_panels_per_hour = 0
+            panels_per_hour[track] = [0 for x in range(0:101)]
+            continue
 
         # randomly assign which hours get the extra panel above the floor number
         # of panels per hour by assembling a deck for the hours to draw from.
