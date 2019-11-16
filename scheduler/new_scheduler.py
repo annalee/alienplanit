@@ -1,9 +1,9 @@
 import random
 import datetime
 
-from django.db.models import Count, Lookup, Q
+from django.db.models import Count, Q
 
-from scheduler.models import Day, Room, Panelist, Panel, Experience, Conference, Track
+from scheduler.models import Room, Panelist, Panel, Track
 
 
 def check_bench(potential_panels, need_break):
@@ -27,7 +27,7 @@ def get_compatible_panels(slotted_panels, potential_panels, track, need_break):
 
     for panel in slotted_panels:
         if panel.panelists_locked:
-            existing_panelists += list(panel.required_panelists)
+            existing_panelists += list(panel.required_panelists.all())
             locked += 1
         else:
             existing_panelists += list(panel.interested_panelists.exclude(
@@ -62,10 +62,10 @@ def add_a_compatible_panel(conference, slotted_panels, available_panels,
 
     if compatible_panels:
         chosen = random.choice(compatible_panels)
-        slotted_panels.append(chosen) 
+        slotted_panels.append(chosen)
         print("Adding", chosen.title)
     else:
-        print("No compatible panels. Retrying.") 
+        print("No compatible panels. Retrying.")
         for panel in available_panels:
             slotted_panels[0] = panel
             potential_panels = get_potential_panels(
@@ -77,7 +77,7 @@ def add_a_compatible_panel(conference, slotted_panels, available_panels,
                 slotted_panels.append(random.choice(compatible_panels))
                 return slotted_panels
         return slotted_panels
-    
+
     return slotted_panels
 
 
@@ -174,16 +174,16 @@ def get_hour_list(day):
 def calculate_overlap(start1, end1, start2, end2):
     # 1 starts before or at 2's start and ends after 2 starts
     overlap = datetime.timedelta()
-    if start1 <= start2 and end1 > start2:
+    if start1 <= start2 and end1 >= start2:
         if end1 >= end2:
             # The day encompasses the whole track
             overlap = end2 - start2
         else:
             # The track continues past the end of the day
             overlap = end1 - start2
-        return overlap.total_seconds() % 3600 // 60
+        # return overlap.total_seconds() // 3600
     # 2 starts before or at 1's start and ends after 1 starts
-    elif start2 <= start1 and end2 > start1:
+    elif start2 <= start1 and end2 >= start1:
         if end2 >= end1:
             # The track encompasses the whole day
             overlap = end1 - start1
@@ -222,7 +222,8 @@ def schedule_panels(conference):
         if total_hours:
             base_panels_per_hour = total_panels//total_hours
         else:
-            panels_per_hour[track] = [0 for x in range(0:101)]
+            panels_per_hour[track] = [0 for x in range(0,101)]
+            print('{} has no hours'.format(track.name))
             continue
 
         # randomly assign which hours get the extra panel above the floor number
@@ -256,13 +257,13 @@ def schedule_panels(conference):
             open_rooms = Room.objects.filter(
                 conference=conference,
                 category=Room.PANEL).exclude(
-                id__in=[r.id for r in booked_rooms])
+                id__in=[r.id for r in booked_rooms if r])
 
             # Check which tracks are active this hour
-            tracks = tracks.filter(start__lte=hour, end__gt=hour)
+            tracksnow = tracks.filter(start__lte=hour, end__gt=hour)
 
             # Cycle through active tracks and slot in panels for them
-            for track in tracks:
+            for track in tracksnow:
                 booked = Panel.objects.filter(
                 conference=conference,
                 start_time__lte=hour,
@@ -389,7 +390,8 @@ def schedule_panels(conference):
     print("Couldn't schedule the following panels:")
     total = 0
     for panel in Panel.objects.filter(
-        conference=conference, start_time__isnull=True).annotate(
+        conference=conference,
+        start_time__isnull=True).annotate(
         ipcount=Count('interested_panelists')):
         print(panel.title)
         print("Interested panelists: {}".format(panel.ipcount))

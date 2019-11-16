@@ -31,11 +31,10 @@ class PanelAdmin(admin.ModelAdmin):
 
     list_display = ["title",
                     "moderator",
-                    "timeslot",
+                    "start_time",
                     "room",
                     "panelists_locked",
-                    "on_form",
-                    "publish"
+                    "on_form"
                     ]
     list_editable = ["panelists_locked", "on_form", "publish"]
     list_filter = ("conference", ("tracks", admin.RelatedOnlyFieldListFilter))
@@ -159,5 +158,3 @@ class DayAdmin(admin.ModelAdmin):
 
 scheduler_models = [Experience, Conference]
 admin.site.register(scheduler_models)
-
-

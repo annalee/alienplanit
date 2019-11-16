@@ -186,8 +186,10 @@ class Panel(models.Model):
     experience_check.admin_order_field = 'experience'
 
     def __str__(self):
-        return self.title + ', ' + self.timeslot.__str__()
-
+        if self.start_time:
+            return self.title + ', ' + self.start_time.strftime("%a %-I:%M%p")
+        else:
+            return self.title
     class Meta:
         unique_together = ("room", "timeslot", "conference")
         constraints = [
@@ -195,4 +197,3 @@ class Panel(models.Model):
                 check=Q(start_time__lte=F('end_time')),
                 name="valid-time")
         ]
-
