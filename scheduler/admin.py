@@ -41,6 +41,7 @@ class PanelAdmin(admin.ModelAdmin):
     list_filter = ("conference", ("tracks", admin.RelatedOnlyFieldListFilter))
     search_fields = ['title']
     ordering = ["title"]
+    raw_id_fields = ["moderator"]
     fieldsets = (
         ("Panel Information", {
             'fields': ("title",
