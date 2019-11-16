@@ -100,6 +100,7 @@ class Track(models.Model):
         null=True, on_delete=models.SET_NULL, related_name="tracks")
     start = models.DateTimeField(blank=True, null=True)
     end = models.DateTimeField(blank=True, null=True)
+    schedule = models.BooleanField(default=True)
     limit_concurrent = models.IntegerField(
         help_text="Limit how many panels can run at once (zero for no limit)",
         default=0)

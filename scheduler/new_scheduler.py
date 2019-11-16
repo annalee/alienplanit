@@ -195,7 +195,7 @@ def calculate_overlap(start1, end1, start2, end2):
 
 def schedule_panels(conference):
     # Get the Day objects for the conference
-    tracks = conference.tracks.all()
+    tracks = conference.tracks.filter(schedule=True)
     days = conference.days.all()
     panelists = conference.panelists.all()
     if not tracks:
