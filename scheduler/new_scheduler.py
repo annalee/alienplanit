@@ -132,6 +132,8 @@ def get_break_needed(hour, panelists):
         max_on = datetime.timedelta(hours=panelist.inarow)
         start_window = hour - max_on
         end_window = hour + max_on
+        hourback = hour - datetime.timedelta(hours=1)
+        hournext = hour + datetime.timedelta(hours=1)
         recent_panel_count = panelist.panels.filter(
             end_time__gte=start_window,
             end_time__lte=hour).count()
@@ -147,6 +149,13 @@ def get_break_needed(hour, panelists):
         if (recent_panel_count == panelist.inarow
             or upcoming_panel_count == panelist.inarow):
             need_break.append(panelist)
+        elif panelist.panels.filter(
+            start_time__lte=hourback,
+            end_time__gte=hourback) and panelist.panels.filter(
+            start_time__lte=hournext,
+            end_time__gte=hournext):
+                if panelist.inarow < 3:
+                    need_break.append(panelist)
     return need_break
 
 
@@ -222,7 +231,7 @@ def schedule_panels(conference):
         # randomly assign which hours get the extra panel above the floor number
         # of panels per hour by assembling a deck for the hours to draw from.
         extras = int(total_panels % total_hours)
-        deck = [1 for x in range(0, extras + 6)] # 6 extra to account for 
+        deck = [1 for x in range(0, extras + 6)] # 6 extra to account for
         deck += [0 for x in range(extras, int(total_hours - 6))] # hard bookings
         paneldeck = [x + int(base_panels_per_hour) for x in deck]
         random.shuffle(paneldeck)
@@ -390,7 +399,7 @@ def schedule_panels(conference):
     print("Total:", total)
     return "Done!"
 
-def schedule_readings(conference, room):
+def schedule_readings(conference, room=None):
     reading_ids = []
     days = conference.days.all()
     panelists = Panelist.objects.filter(
@@ -398,7 +407,7 @@ def schedule_readings(conference, room):
     # Get the longest track and run readings during that
     tracks_by_length = []
     for track in Track.objects.filter(conference=conference):
-        tracks_by_length.append((track.start - track.end, track.id))
+        tracks_by_length.append((track.end - track.start, track.id))
     tracks_by_length.sort()
     reading_track = Track.objects.get(id=tracks_by_length[-1][1])
 
@@ -411,7 +420,24 @@ def schedule_readings(conference, room):
             slotted_panels = Panel.objects.filter(
                 conference=conference,
                 start_time__lte=hour,
-                end_time__gt=hour)
+                end_time__gte=hour)
+            booked_rooms = [p.room.id for p in slotted_panels]
+            if not room:
+                rooms = Room.objects.filter(
+                    conference=conference,
+                    category=Room.READING).exclude(
+                    id__in=booked_rooms)
+                if not rooms:
+                    rooms = Room.objects.filter(
+                        conference=conference,
+                        category=Room.PANEL).exclude(
+                        id__in=booked_rooms)
+                if rooms:
+                    room = rooms[0]
+                    print("booking", room, "at", hour)
+                else:
+                    print("Out of rooms at", hour)
+                    continue
             need_break_ids = [x.id for x in get_break_needed(hour, panelists)]
             readers = panelists.exclude(
                 Q(id__in=reading_ids) |
@@ -419,6 +445,8 @@ def schedule_readings(conference, room):
                 Q(panels__in=slotted_panels) |
                 Q(moderating__in=slotted_panels)
                 )[:3]
+            if not readers:
+                continue
 
             title = "Reading: "
             for reader in readers:
@@ -428,11 +456,11 @@ def schedule_readings(conference, room):
                                  title=title,
                                  start_time=hour,
                                  end_time=hour + datetime.timedelta(minutes=50),
-                                 room=room,
                                  av_required=False,
+                                 room=room,
                                  roomsize = 25)
             groupreading.final_panelists.set(readers)
             groupreading.save()
 
-            reading_ids.extend([x.id for x in readers])
+            reading_ids += [x.id for x in readers]
             print("Scheduled", groupreading.title, "on", day.day, "at", groupreading.start_time)
