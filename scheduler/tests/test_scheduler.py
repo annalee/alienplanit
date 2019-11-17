@@ -12,7 +12,6 @@ from .scheduler_factories import PanelistFactory, PanelFactory, DayFactory
 
 from scheduler import new_scheduler
 
-import pdb
 
 class Test_Scheduler(TestCase):
     def setUp(self):
@@ -69,7 +68,7 @@ class Test_Scheduler(TestCase):
         counter = 0
         while Panel.objects.filter(
             conference=con,
-            start_time__isnull=True).count() and counter < 3:
+            start_time__isnull=True).count() and counter < 5:
             new_scheduler.schedule_panels(con)
             counter +=1
         print(counter)
@@ -92,7 +91,6 @@ class Test_Scheduler(TestCase):
                 mdupes = panelist.moderating.filter(
                     start_time__lte=panel.start_time,
                     end_time__gte=panel.start_time)
-                if dupes > 1 or mdupes: pdb.set_trace()
                 self.assertEqual(dupes, 1)
                 self.assertEqual(mdupes.count(), 0)
             for panel in panelist.moderating.all():

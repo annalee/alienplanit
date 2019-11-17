@@ -222,8 +222,8 @@ def schedule_panels(conference):
         # randomly assign which hours get the extra panel above the floor number
         # of panels per hour by assembling a deck for the hours to draw from.
         extras = int(total_panels % total_hours)
-        deck = [1 for x in range(0, extras)]
-        deck += [0 for x in range(extras, int(total_hours))]
+        deck = [1 for x in range(0, extras + 6)] # 6 extra to account for 
+        deck += [0 for x in range(extras, int(total_hours - 6))] # hard bookings
         paneldeck = [x + int(base_panels_per_hour) for x in deck]
         random.shuffle(paneldeck)
         panels_per_hour[track] = paneldeck
@@ -259,9 +259,8 @@ def schedule_panels(conference):
                 booked = Panel.objects.filter(
                 conference=conference,
                 start_time__lte=hour,
-                end_time__gt=hour,
-                tracks=track)
-                bookedcount = len(booked)
+                end_time__gt=hour)
+                bookedcount = len(booked.filter(tracks=track))
                 for b in booked:
                     exclusions |= add_exclusions(panel)
                 track.panels_this_hour = panels_per_hour[track].pop(0)
