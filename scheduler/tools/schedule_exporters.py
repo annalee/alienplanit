@@ -7,7 +7,7 @@ from django.db.models import Q
 from scheduler.models import Room, Panelist, Panel, Track, Conference
 
 
-def all_schedules(con):
+def all_schedules_by_panelist(con):
     workbook = Workbook()
     worksheet = workbook.active
 
@@ -28,10 +28,12 @@ def all_schedules(con):
             panelists = ', '.join(
                 [x.program_name for x in p.final_panelists.all()])
             moderator = ''
+            start = p.start_time.strftime("%A %-I:%M%p")
+            room = p.room.name
             if p.moderator:
-                moderator = p.moderator + ' (m), '
-            panelstring = "{}\n{}\n{}{}\n\n".format(
-                p.title, p.description, p.moderator, panelists)
+                moderator = p.moderator.program_name + ' (m), '
+            panelstring = "{}\n{} {}\n{}\n{}{}\n\n".format(
+                p.title, start, room, p.description, moderator, panelists)
             schedule += panelstring
 
 
