@@ -27,6 +27,8 @@ def all_schedules_by_panelist(con):
         for p in panels:
             panelists = ', '.join(
                 [x.program_name for x in p.final_panelists.all()])
+            if p.title == "Mass Autographing Session":
+                panelists = ''
             moderator = ''
             start = p.start_time.strftime("%A %-I:%M%p")
             room = p.room.name
