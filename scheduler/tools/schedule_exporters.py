@@ -29,13 +29,16 @@ def all_schedules_by_panelist(con):
                 [x.program_name for x in p.final_panelists.all()])
             if p.title == "Mass Autographing Session":
                 panelists = ''
-            moderator = ''
             start = p.start_time.strftime("%A %-I:%M%p")
             room = p.room.name
+            description = ''
+            if p.description:
+                description = p.description
+            moderator = ''
             if p.moderator:
                 moderator = p.moderator.program_name + ' (m), '
             panelstring = "{}\n{} {}\n{}\n{}{}\n\n".format(
-                p.title, start, room, p.description, moderator, panelists)
+                p.title, start, room, description, moderator, panelists)
             schedule += panelstring
 
 
