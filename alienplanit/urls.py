@@ -16,7 +16,13 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import include, path
+from .settings import DEBUG
 from scheduler import views
+
+if DEBUG == True:
+    admin.site.site_header = "Local Dev Admin"
+    admin.site.site_title = "Local Dev Admin"
+    admin.site.index_title = "Local Dev Admin"
 
 urlpatterns = [
     path('', views.index),
