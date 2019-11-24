@@ -34,9 +34,9 @@ class PanelAdmin(admin.ModelAdmin):
                     "start_time",
                     "room",
                     "panelists_locked",
-                    "on_form"
+                    "publish"
                     ]
-    list_editable = ["panelists_locked", "on_form"]
+    list_editable = ["panelists_locked", "publish"]
     list_filter = ("conference", ("tracks", admin.RelatedOnlyFieldListFilter))
     search_fields = ['title']
     ordering = ["title"]

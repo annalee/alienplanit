@@ -1,3 +1,6 @@
+import datetime
+import collections
+
 from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
 
@@ -9,13 +12,84 @@ from .models import Conference, Experience, Panelist, Panel, Track
 from .forms import PanelistRegistrationForm
 
 
+class ScheduleDisplayView(TemplateView):
+
+    template_name = "scheduler/panel-schedule.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        conference = get_object_or_404(
+            Conference, slug=kwargs['conference'])
+
+        # Get the approved panels by start time
+        conference_panels = Panel.objects.filter(
+                conference=conference,
+                publish=True).prefetch_related(
+                'room',
+                "final_panelists",
+                "moderator",
+                "tracks")
+
+        # It isn't strictly necessary to break them up by day but I prefer to
+        # keep as much logic as possible in the view instead of the template.
+        days = conference.days.all().order_by('day')
+
+        panels = collections.OrderedDict()
+        displaydays = []
+        for day in days:
+            dayname = day.day.strftime('%A')
+            midnight = datetime.datetime.combine(
+                day.day, datetime.time(hour=0, minute=0))
+            eleven59pm = datetime.datetime.combine(
+                day.day, datetime.time(hour=23, minute=59, second=59))
+
+            daypanels = conference_panels.filter(
+                start_time__lte= eleven59pm,
+                end_time__gte= midnight).order_by("start_time")
+            if daypanels:
+                panels[dayname] = daypanels
+                displaydays.append(dayname)
+
+        tracks = conference.tracks.filter(panels__isnull=False).distinct()
+
+        context['panels'] = panels
+        context['displaydays'] = displaydays
+        context['tracks'] = tracks
+        context['conference'] = conference
+        return context
+
+
 def index(request):
     return HttpResponse(
         '"Time, like water, expands when frozen." -Amal El-Mohtar')
 
+'''
+class AssembleSchedule(FormView):
+    form_class = ScheduleAssemblyForm
+    template_name = "scheduler/assemble.html"
+
+    def get_success_url(self, **kwargs):
+        return reverse_lazy('schedule',
+        kwargs={'conference': self.kwargs['conference']})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context
+
+    def form_invalid(self, form, **kwargs):
+        context = self.get_context_data()
+        context['form'] = form
+        return self.render_to_response(context)
+
+    def form_valid(self, form, **kwargs):
+        #run the schedule
+        return super().form_valid(form)
+
+'''
+
+
 class PanelistRegistrationView(FormView):
-
-
     form_class = PanelistRegistrationForm
     template_name = "scheduler/registration.html"
 
@@ -36,7 +110,7 @@ class PanelistRegistrationView(FormView):
                 'experience')
         tracks = Track.objects.filter(conference=conference)
 
-        panels = {}
+        panels = collections.OrderedDict()
         displaytracks = []
         for track in tracks:
             trackpanels = conference_panels.filter(

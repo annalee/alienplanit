@@ -31,25 +31,20 @@
 				display: none;
 			}
 			/* expand/collapse days */
-			body.friday .day-container.friday .panel-container,
-			body.saturday .day-container.saturday .panel-container,
-			body.sunday .day-container.sunday .panel-container,
+			{% for day in displaydays %}body.{{day|lower}} .day-container.{{day|lower}} .panel-container,
+			{% endfor %}
 
 			/* filter by track  */
-			body.literature .panel.literature,
-			body.pro .panel.pro,
-			body.kidfusion .panel.kidfusion,
-			body.costuming .panel.costuming,
+			{% for track in tracks %}body.{{track.slug}} .panel.{{track.slug}},
+			{% endfor %}
 
 			/* expand/collapse detail view */
 			body.expanded .details{	
 				display: block;
 			}
 
-			body.literature button.btn.literature,
-			body.pro button.btn.pro,
-			body.kidfusion button.btn.kidfusion,
-			body.costuming button.btn.costuming {
+			{% for track in tracks %}body.{{track.slug}} button.btn.{{track.slug}}{% if forloop.last %}{ {% else %},
+    		{% endif %}{% endfor %}
 				background: #6c757d;
 				color: #ffffff;
 			}
@@ -60,17 +55,14 @@
 
 			/*list of all days  */
 			var allDays = [
-				'friday',
-				'saturday',
-				'sunday'
+				{% for day in displaydays %}'{{day|lower}}'{% if forloop.last %}{% else %},
+    		{% endif %}{% endfor %}
 			];
 
 			/* list of all tracks */
 			var allTracks = [
-				'literature',
-				'pro',
-				'costuming',
-				'kidfusion'
+				{% for track in tracks %}'{{track.slug}}'{% if forloop.last %}{% else %},
+    			{% endif %}{% endfor %}
 			];
 
 			/* start with all days open */
@@ -138,7 +130,7 @@
 			}
 		</script>
 	</head>
-	<body class="friday saturday sunday literature pro kidfusion costuming expanded">
+	<body class="{% for day in displaydays %}{{day|lower}} {% endfor %}{% for track in tracks %}{{track.slug}} {% endfor %}expanded">
 		<div id="panelBase" class="container">
 			<div class="row header py-3">
 				<div class="col-12 py-3 text-center">
@@ -153,152 +145,40 @@
 			<div class="row filters">
 				<div class="col-12 mb-2 px-0">
 					<button name="all" class="btn btn-primary mb-1 all" onclick="filterByTrack(this)">TOGGLE ALL TRACKS</button>
-					<button name="literature" class="btn btn-outline-secondary mb-1 literature" onclick="filterByTrack(this)">Literature</button>
-					<button name="pro" class="btn btn-outline-secondary mb-1 pro" onclick="filterByTrack(this)">Pro</button>
-					<button name="kidfusion" class="btn btn-outline-secondary mb-1 kidfusion" onclick="filterByTrack(this)">KidFusion</button>
-					<button name="costuming" class="btn btn-outline-secondary mb-1 costuming" onclick="filterByTrack(this)">Costuming</button>
-					<button class="btn btn-primary mb-1" onclick="toggleDetails()">Toggle Detail View</button>
+					<br>{% for track in tracks %}<button name="{{track.slug}}" class="btn btn-outline-secondary mb-1 {{track.slug}}" onclick="filterByTrack(this)">{{track.name}}</button>
+					{% endfor %}
+					<br><button class="btn btn-primary mb-1" onclick="toggleDetails()">Toggle Detail View</button>
 				</div>
 			</div>
-			<div class="row day-container friday mb-3">
+			{% for day, panels in panels.items %}
+			<div class="row day-container {{day|lower}} mb-3">
 				<div class="col-12 px-0">
 					<button 
-						name="friday" 
+						name="{{day|lower}}" 
 						class="btn panel-button btn-outline-secondary btn-lg btn-block mb-2 font-weight-bold text-dark" 
-						onclick="toggleDay(this)">Friday Panels</button>
+						onclick="toggleDay(this)">{{day}} Panels</button>
 				</div>
 				<div class="col-12 panel-container">
-					<div class="row panel literature">
+					{% for panel in panels %}
+					<div class="row panel {{panel.tracks.all.0.slug}}" style="background:{% cycle '#f0f0f0' '#ffffff' %}">
 						<div class="col-12 border rounded py-2 my-1">
 							<div class="row mb-1">
-								<div class="col-12"><h3 class="border-bottom">Literature Panel</h3></div>
-								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
-								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
-								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
-								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Literature</div>
+								<div class="col-12"><h3 class="border-bottom">{{panel.title}}</h3></div>
+								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>{{day}}</div>
+								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>{{panel.start_time|date:'h:i a'}}</div>
+								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>{{panel.room.name}}</div>
+								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>{{panel.tracks.all.0.name}}</div>
 							</div>
 							<div class="row mb-1 details">
-								<div class="col-12 my-1 description">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
-								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
+								<div class="col-12 my-1 description">{{panel.description}}</div>
+								<div class="col-12 panelists"><b>Panelists:</b> {% if panel.moderator %}{{panel.moderator.program_name}} <b>(M)</b>,{% endif %}{% for panelist in panel.final_panelists.all %} {{panelist.program_name}}{% if forloop.last %}{% else %},{% endif %}{% endfor %}</div>	
 							</div>
 						</div>
 					</div>
-					<div class="row panel pro">
-						<div class="col-12 border rounded py-2 my-1">
-							<div class="row mb-1">
-								<div class="col-12"><h3>Pro Panel</h3></div>
-								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
-								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
-								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
-								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Literature</div>
-							</div>
-							<div class="row mb-1 details">
-								<div class="col-12 my-1 description">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
-								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
-							</div>
-						</div>
-					</div>
-					<div class="row panel pro">
-						<div class="col-12 border rounded py-2 my-1">
-							<div class="row mb-1">
-								<div class="col-12"><h3>Another Pro Panel</h3></div>
-								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
-								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
-								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
-								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Literature</div>
-							</div>
-							<div class="row mb-1 details">
-								<div class="col-12 my-1 description">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
-								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
-							</div>
-						</div>
-					</div>
+					{% endfor %}
 				</div>
 			</div>
-			<div class="row day-container saturday mb-3">
-				<div class="col-12 px-0">
-					<button 
-						name="saturday" 
-						class="btn panel-button btn-outline-secondary btn-lg btn-block mb-2 font-weight-bold text-dark" 
-						onclick="toggleDay(this)">Saturday Panels</button>
-				</div>
-				<div class="col-12 panel-container">
-
-					<div class="row panel kidfusion">
-						<div class="col-12 border rounded py-2 my-1">
-							<div class="row">
-								<div class="col-12"><h3>This is a KidFusion Panel</h3></div>
-								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
-								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
-								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
-								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Media</div>
-							</div>
-							<div class="row my-1 details">
-								<div class="col-12 description my-1">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
-								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
-							</div>
-						</div>
-					</div>
-					
-					<div class="row panel costuming">
-						<div class="col-12 border rounded py-2 my-1">
-							<div class="row">
-								<div class="col-12"><h3>Classy Costuming Panel</h3></div>
-								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
-								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
-								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
-								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Media</div>
-							</div>
-							<div class="row my-1 details">
-								<div class="col-12 description my-1">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
-								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
-							</div>
-						</div>
-					</div>
-					
-					<div class="row panel costuming">
-						<div class="col-12 border rounded py-2 my-1">
-							<div class="row">
-								<div class="col-12"><h3>Stupendous Costuming Panel</h3></div>
-								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
-								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
-								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
-								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Media</div>
-							</div>
-							<div class="row my-1 details">
-								<div class="col-12 description my-1">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
-								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<div class="row day-container sunday mb-3">
-				<div class="col-12 px-0">
-					<button 
-						name="sunday" 
-						class="btn panel-button btn-outline-secondary btn-lg btn-block mb-2 font-weight-bold text-dark" 
-						onclick="toggleDay(this)">Sunday Panels</button>
-				</div>
-				<div class="col-12 panel-container">
-					<div class="row panel costuming">
-						<div class="col-12 border rounded py-2 my-1">
-							<div class="row">
-								<div class="col-12"><h3>The Business of Episodic Storytelling</h3></div>
-								<div class="col-3"><b>Day:</b> <br class="d-md-none"/>Friday</div>
-								<div class="col-3"><b>Time:</b> <br class="d-md-none"/>12:00 PM</div>
-								<div class="col-3"><b>Room:</b> <br class="d-md-none"/>Erie</div>
-								<div class="col-3"><b>Track:</b> <br class="d-md-none"/>Costume</div>
-							</div>
-							<div class="row my-1 details">
-								<div class="col-12 my-1 description">Serialized fiction has experienced a renaissance in the age of the internet. Our panelists discuss the business side of episodic storytelling-- What are the trade-offs between self-publishing and going with a publisher like Serial Box? If going through a publisher, how do you pitch serialized projects? If self-publishing, which platform is best for your work and audience?</div>
-								<div class="col-12 panelists"><b>Panelists:</b> Pablo Defendini (M), Michael R. Underwood, Mackenzie Flohr, E.D.E. Bell (Emily), Christian Klaver</div>	
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
+			{% endfor %}
 		</div>
 	</body>
 </html>
