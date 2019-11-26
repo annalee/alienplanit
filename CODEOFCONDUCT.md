@@ -3,7 +3,7 @@ The Alien Planit Contributor Code of Conduct
 
 The Alien Planit developer community is dedicated to providing a harassment-free experience for everyone. We do not tolerate harassment of community members in any form.
 
-This code of conduct applies to all Alien Planit spaces, including the Alien Planit repository and any mailing lists, chat groups, wikis, and/or other official channels we use to communicate about the project.
+This code of conduct applies to all Alien Planit spaces, including the Alien Planit repository and any mailing lists, chat groups, wikis, and/or other channels we use to communicate about the project.
 
 Unacceptable Behavior
 ---------------------
