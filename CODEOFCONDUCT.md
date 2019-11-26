@@ -3,6 +3,8 @@ The Alien Planit Contributor Code of Conduct
 
 The Alien Planit developer community is dedicated to providing a harassment-free experience for everyone. We do not tolerate harassment of community members in any form.
 
+Our values, and guidelines on how to help build a positive and collaborative project culture, are stored in [our Contributing Guide](CONTRIBUTING.md). The purpose of this Code of Conduct is to lay out clear boundaries that everyone involved in the project is expected to respect.
+
 This code of conduct applies to all Alien Planit spaces, including the Alien Planit repository and any mailing lists, chat groups, wikis, and/or other channels we use to communicate about the project.
 
 Unacceptable Behavior
@@ -33,7 +35,7 @@ Enforcement
 -----------
 Participants asked to stop any harassing behavior are expected to comply immediately.
 
-The Project Lead is responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate and fair corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.
+The Project Lead is responsible for clarifying and enforcing our standards of acceptable behavior and will take appropriate corrective action in response to any behavior that they deem inappropriate, threatening, offensive, or harmful.
 
 The Project Lead has the right and responsibility to remove, edit, or reject comments, commits, code, wiki edits, issues, and other contributions that are not aligned to this Code of Conduct, and will communicate reasons for moderation decisions when appropriate.
 
