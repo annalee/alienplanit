@@ -3,6 +3,8 @@ from django.db.models import Q
 
 import datetime
 
+from .new_scheduler import get_hour_list
+
 def room_integrity_check(con):
     total_dupes = 0
     for room in Room.objects.filter(conference=con):
@@ -17,6 +19,24 @@ def room_integrity_check(con):
                 total_dupes += 1
                 print(room, "is double-booked at", panel.start_time)
     return total_dupes
+
+
+def open_rooms_check(con):
+    days = con.days.all()
+    hours = []
+    for day in days:
+        hours += get_hour_list(day)
+
+    rooms = Room.objects.filter(conference=con,
+        category__in=[Room.PANEL, Room.READING])
+
+    for hour in hours:
+        for room in rooms:
+            if not room.panels.filter(
+                start_time__lte=hour, end_time__gte=hour).exists():
+                print(room.name, "is open at", hour)
+
+
 
 def panelist_integrity_check(con):
     total_dupes = 0

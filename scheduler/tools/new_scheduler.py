@@ -164,7 +164,7 @@ def get_hour_list(day):
     # between start_time and end_time.
     hour = datetime.timedelta(hours=1)
     current = datetime.datetime.combine(day.day, day.start_time)
-    end = datetime.datetime.combine(day.day, day.end_time) - hour
+    end = datetime.datetime.combine(day.day, day.end_time)
 
     hours = []
     while current < end:
