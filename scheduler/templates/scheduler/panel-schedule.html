@@ -17,13 +17,18 @@
 				background: #000000;
 				border-bottom: 1px solid #8224e3;
 			}
+
+			.header img {
+				max-width: 100%;
+			}
+
 			.navigation a {
 				color: #ffffff;
 				font-weight: bold;
 			}
-			/*h3, .panel-button {
-				font-family: Merriweather;
-			}*/
+			.timeslot {
+				background-color: #dcdcdc;
+			}
 
 			/* filter styles and logic */
 
@@ -42,12 +47,18 @@
 			body.expanded .details{	
 				display: block;
 			}
+			/* day expand/collapse buttons */
+			{% for day in displaydays %}body.{{day|lower}} button[name="{{day|lower}}"],
+			{% endfor %}
 
+			/* track toggle buttons */
 			{% for track in tracks %}body.{{track.slug}} button.btn.{{track.slug}}{% if forloop.last %}{ {% else %},
     		{% endif %}{% endfor %}
-				background: #6c757d;
-				color: #ffffff;
+				background: #6c757d !important;
+				color: #ffffff !important;
 			}
+
+
 
 			/* /filter styles and logic */
 		</style>
@@ -144,10 +155,19 @@
 			</div>
 			<div class="row filters">
 				<div class="col-12 mb-2 px-0">
-					<button name="all" class="btn btn-primary mb-1 all" onclick="filterByTrack(this)">TOGGLE ALL TRACKS</button>
-					<br>{% for track in tracks %}<button name="{{track.slug}}" class="btn btn-outline-secondary mb-1 {{track.slug}}" onclick="filterByTrack(this)">{{track.name}}</button>
-					{% endfor %}
-					<br><button class="btn btn-primary mb-1" onclick="toggleDetails()">Toggle Detail View</button>
+					<div class="row">
+						<div class="col-0 col-md-3"></div>
+						<div class="col-12 col-md-6 mb-2"><button name="all" class="btn btn-primary mb-1 all" onclick="filterByTrack(this)">TOGGLE ALL TRACKS</button></div>
+						<div class="col-0 col-md-3"></div>
+
+						{% for track in tracks %}<div class="col-4 col-md-3"><button name="{{track.slug}}" class="btn btn-outline-secondary mb-1 {{track.slug}}" onclick="filterByTrack(this)">{{track.name}}</button></div>
+						{% endfor %}
+						
+						<div class="w-100"></div>
+						<div class="col-0 col-md-3"></div>
+						<div class="col-12 col-md-6 mt-2"><button class="btn btn-primary mb-1" onclick="toggleDetails()">Toggle Detail View</button></div>
+						<div class="col-0 col-md-3"></div>
+					</div>
 				</div>
 			</div>
 			{% for day, panels in panels.items %}
@@ -159,6 +179,7 @@
 						onclick="toggleDay(this)">{{day}} Panels</button>
 				</div>
 				<div class="col-12 panel-container">
+					<div class="row timeslot mt-1"><div class="col-12 text-center"><h5 class="m-0 py-1">07:00 p.m.</h5></div></div>
 					{% for panel in panels %}
 					<div class="row panel {{panel.tracks.all.0.slug}}" style="background:{% cycle '#f0f0f0' '#ffffff' %}">
 						<div class="col-12 border rounded py-2 my-1">
