@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.list import ListView
 from django.views.generic.edit import UpdateView
@@ -11,7 +11,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.urls import reverse_lazy
 
 from .forms import PanelistForm, PanelSubmissionForm
-from .models import Panelist, Panel, Textblock
+from .models import Conference, Panelist, Panel, Textblock
 
 from scheduler.models import Panel as SchedulerPanel
 from scheduler.models import Conference as SchedulerConference
@@ -23,21 +23,30 @@ class PendingPanelList(ListView):
 
     template_name = 'submissions/pendingpanellist.html'
 
+
     def get_queryset(self):
-        return Panel.objects.filter(status=Panel.PENDING)
+        conference = get_object_or_404(
+            Conference, slug = self.kwargs['conslug'])
+        return Panel.objects.filter(
+            conference=conference,
+            status=Panel.PENDING
+            )
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        conference = get_object_or_404(
+            Conference, slug = self.kwargs['conslug'])
 
         # Textblock for top of page
         textblock, created = Textblock.objects.get_or_create(
-            slug="panelreviewlist", conference="ConFusion2020")
+            slug="panelreviewlist", conference=conference)
         if created:
             textblock.title = "Pending Panel Queue"
             textblock.save()
 
         context['textblock'] = textblock
         return context
+
 
 @method_decorator(staff_member_required, name='dispatch')
 class PendingPanelDetail(UpdateView):
@@ -75,10 +84,11 @@ class PendingPanelDetail(UpdateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        conslug = self.object.conference
 
         # Textblock for top of page
         textblock, created = Textblock.objects.get_or_create(
-            slug="panelreviewdetail", conference="ConFusion2020")
+            slug="panelreviewdetail", conference=conslug)
         if created:
             textblock.title = "Pending Panel"
             textblock.save()
@@ -89,7 +99,8 @@ class PendingPanelDetail(UpdateView):
         )
 
         context['textblock'] = textblock
-        context['submitter'] = Panelist.objects.filter(email=submission.submitter_email).first()
+        context['submitter'] = Panelist.objects.filter(
+            email=submission.submitter_email).first()
         context['panel'] = submission
         context['panelform'] = panelform
 
@@ -136,18 +147,22 @@ class PendingPanelDetail(UpdateView):
 
 @xframe_options_exempt
 @csrf_exempt
-def panel(request):
+def panel(request, conslug="ConFusion2020"):
 
-    # Panel submissions are closed. TODO: move this into an admin setting
-    textblock, created = Textblock.objects.get_or_create(slug="panelformclosed", conference="ConFusion2020")
-    if created:
-        textblock.title = "The Panel Submission Form Is Closed"
-        textblock.save()
-    context = {
-        'title': textblock.title,
-        'body': textblock.body,
-    }
-    return render(request, 'submissions/panel.html', context)
+    conference = get_object_or_404(Conference, slug = conslug)
+
+    if not conference.panel_form_open:
+        # Display the "panel submissions are closed" text block.
+        textblock, created = Textblock.objects.get_or_create(
+            slug="panelformclosed", conference=conference)
+        if created:
+            textblock.title = "The Panel Submission Form Is Closed"
+            textblock.save()
+        context = {
+            'title': textblock.title,
+            'body': textblock.body,
+        }
+        return render(request, 'submissions/panel.html', context)
 
     if request.method == 'POST':
         panelform = PanelSubmissionForm(request.POST)
@@ -155,12 +170,13 @@ def panel(request):
             form = panelform.cleaned_data
             panel, created = Panel.objects.get_or_create(
                 title=form['title'],
-                conference="ConFusion2020",
+                conference=conslug,
                 submitter_email=form['email'],
                 description=form['description'],
                 notes=form['notes'],
                 )
-            textblock, created = Textblock.objects.get_or_create(slug="panelthanks", conference="ConFusion2020")
+            textblock, created = Textblock.objects.get_or_create(
+                slug="panelthanks", conference=conference)
             if created:
                 textblock.body = "Your panel idea has been submitted. We'll let you know if we're going to run it."
                 textblock.save()
@@ -171,7 +187,8 @@ def panel(request):
     else:
         panelform = PanelSubmissionForm()
 
-    textblock, created = Textblock.objects.get_or_create(slug="panelform", conference="ConFusion2020")
+    textblock, created = Textblock.objects.get_or_create(
+        slug="panelform", conference=conference)
     if created:
         textblock.title = "Panel Submission Form"
         textblock.save()
@@ -185,18 +202,22 @@ def panel(request):
 
 @xframe_options_exempt
 @csrf_exempt
-def panelist(request):
+def panelist(request, conslug="ConFusion2020"):
 
-    # Panel submissions are closed. TODO: move this into an admin setting
-    textblock, created = Textblock.objects.get_or_create(slug="panelistformclosed", conference="ConFusion2020")
-    if created:
-        textblock.title = "The Panelist Submission Form Is Closed"
-        textblock.save()
-    context = {
-        'title': textblock.title,
-        'body': textblock.body,
-    }
-    return render(request, 'submissions/panelist.html', context)
+    conference = get_object_or_404(Conference, slug = conslug)
+
+    if not conference.panelist_form_open:
+        # Display the "panelist submissions are closed" text block instead of the form.
+        textblock, created = Textblock.objects.get_or_create(
+            slug="panelistformclosed", conference=conference)
+        if created:
+            textblock.title = "The Panelist Submission Form Is Closed"
+            textblock.save()
+        context = {
+            'title': textblock.title,
+            'body': textblock.body,
+        }
+        return render(request, 'submissions/panelist.html', context)
 
 
     if request.method == 'POST':
@@ -207,13 +228,14 @@ def panelist(request):
             panelist, created = Panelist.objects.get_or_create(
                 email=form['email'],
                 name=form['name'],
-                conference="ConFusion2020",
+                conference=conference,
             )
             panelist.returning = form['returning']
             panelist.bio = form['bio']
             panelist.save()
             if created:
-                textblock, textcreated = Textblock.objects.get_or_create(slug="panelistcreated", conference="ConFusion2020")
+                textblock, textcreated = Textblock.objects.get_or_create(
+                    slug="panelistcreated", conference=conference)
                 if textcreated: 
                     textblock.body = "Thanks, your info has been recorded. " + message
                     textblock.save()
@@ -222,7 +244,8 @@ def panelist(request):
                     message = textblock.body
 
             else:
-                textblock, textcreated = Textblock.objects.get_or_create(slug="panelistupdated", conference="ConFusion2020")
+                textblock, textcreated = Textblock.objects.get_or_create(
+                    slug="panelistupdated", conference=conference)
                 if textcreated:
                     textblock.body = "Thanks, we've updated your info. " + message
                     textblock.save()
@@ -237,7 +260,8 @@ def panelist(request):
     else:
         panelistform = PanelistForm()
 
-    textblock, created = Textblock.objects.get_or_create(slug="panelistform", conference="ConFusion2020")
+    textblock, created = Textblock.objects.get_or_create(
+        slug="panelistform", conference=conference)
     if created:
         textblock.title = "Panelist Signup Form",
         textblock.save()

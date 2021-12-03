@@ -1,6 +1,23 @@
 from django.contrib import admin
 
-from .models import Panelist, Panel, Textblock
+from .models import Conference, Panelist, Panel, Textblock
+
+@admin.register(Conference)
+class ConferenceAdmin(admin.ModelAdmin):
+    list_display = [
+        "slug",
+        "name",
+        "panelist_form_open",
+        "panel_form_open"]
+    list_editable = [
+        "panelist_form_open",
+        "panel_form_open"]
+    search_fields = [
+        "slug",
+        "name"]
+    list_filter = [
+        "panelist_form_open",
+        "panel_form_open"]
 
 @admin.register(Panelist)
 class PanelistAdmin(admin.ModelAdmin):
@@ -15,7 +32,6 @@ class PanelistAdmin(admin.ModelAdmin):
     search_fields = [
         "name",
         "email"]
-    readonly_fields = ["conference"]
     list_filter = [
         "conference",
         "returning",
