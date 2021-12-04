@@ -263,7 +263,7 @@ def panelist(request, conslug="ConFusion2020"):
     textblock, created = Textblock.objects.get_or_create(
         slug="panelistform", conference=conference)
     if created:
-        textblock.title = "Panelist Signup Form",
+        textblock.title = "Panelist Signup Form"
         textblock.save()
 
     context = {
