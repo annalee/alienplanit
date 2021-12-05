@@ -18,11 +18,8 @@ class PanelForm(forms.Form):
         required=False,
         help_text="Does this panel require a/v? Did you pre-arrange it with other panelists? Any other notes for us?"
         )
-    con, created = Conference.objects.get_or_create(
-        slug='ConFusion2020', name='ConFusion 2020')
-    tracks = con.tracks.all()
     tracks = forms.ModelMultipleChoiceField(
-        queryset = tracks,
+        queryset = Track.objects.all(),
         label='Tracks:',
         widget=forms.CheckboxSelectMultiple(),
         required=False,
@@ -36,6 +33,10 @@ class PanelForm(forms.Form):
     roomsize = forms.IntegerField(
         label='Room Size',
         help_text="How many audience seats should the room have?",)
+
+    def __init__(self, conslug, *args, **kwargs):
+        super(PanelForm, self).__init__(*args, **kwargs)
+        self.fields['tracks'].queryset = Track.objects.filter(conference__slug=conslug)
 
 
 class PanelistRegistrationForm(forms.Form):

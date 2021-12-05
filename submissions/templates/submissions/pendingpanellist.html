@@ -14,7 +14,7 @@
 <p>{{ textblock.body|safe }}</p>
 <ul>
 {% for panel in object_list %}
-    <li><a href="{% url 'pending-panel-detail' panel.id %}">{{ panel.title }}</a></li>
+    <li><a href="{% url 'pending-panel-detail' conslug=conslug pk=panel.id %}">{{ panel.title }}</a></li>
 {% empty %}
     <li>No pending panels.</li>
 {% endfor %}
