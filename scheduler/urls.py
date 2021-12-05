@@ -8,7 +8,7 @@ urlpatterns = [
     path('<slug:conference>/',
         ScheduleDisplayView.as_view(), name='scheduledisplay'),
     path('registration/<slug:conference>/',
-        PanelistRegistrationClosedView.as_view(), name='panelistregistration'),
+        PanelistRegistrationView.as_view(), name='panelistregistration'),
     path('registration/<slug:conference>/thanks/',
         PanelistRegistrationThanksView.as_view(), name='panelistregistrationthanks'),
     path('schedule/<slug:conference>/',

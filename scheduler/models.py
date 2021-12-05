@@ -7,6 +7,7 @@ from django.db.models.constraints import CheckConstraint
 class Conference(models.Model):
     slug = models.SlugField(max_length=50)
     name = models.CharField(max_length=280)
+    panelist_registration_open = models.BooleanField()
 
     def __str__(self):
         return self.slug

@@ -4,7 +4,7 @@ import collections
 from django.views.generic.edit import FormView
 from django.views.generic.base import TemplateView
 
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 
@@ -99,9 +99,9 @@ class PanelistRegistrationView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Get the conference from the url
+        # Get the conference from the url. 404 if panelist registration is closed.
         conference = get_object_or_404(
-            Conference, slug=self.kwargs['conference'])
+            Conference, slug=self.kwargs['conference'], panelist_registration_open=True)
 
         # Get the approved panels by track
         conference_panels = Panel.objects.filter(
