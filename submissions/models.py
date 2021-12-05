@@ -9,19 +9,6 @@ class Conference(models.Model):
     def __str__(self):
         return self.slug
 
-    # Setting a default con for data migration purposes. Way more work than this
-    # warranted when I could have just set a temp default in the migration
-    # dialogue, but this is more future-proof. Have an easter egg: 1843 is the
-    # year of Ada Lovelace's first program.
-    @staticmethod
-    def get_default_con():
-        conference, created = Conference.objects.get_or_create(
-            slug="AlienPlanitCon1843")
-        if created:
-            conference.name = "AlienPlanit Con 1843"
-            conference.save()
-        return conference.pk
-
 
 class Panelist(models.Model):
     # this collects info we can use to contact interested panelists about
@@ -43,7 +30,7 @@ class Panelist(models.Model):
         Conference,
         on_delete = models.CASCADE,
         related_name = 'Panelists',
-        default= Conference.get_default_con()
+        default= 1
    )
     returning = models.BooleanField(default=False)
     bio = models.TextField(
@@ -80,7 +67,7 @@ class Panel(models.Model):
         Conference,
         on_delete = models.CASCADE,
         related_name = 'Panels',
-        default= Conference.get_default_con()
+        default= 1
    )
     submitter_email = models.CharField(max_length=280)
     description = models.TextField(blank=True, null=True)
@@ -105,7 +92,7 @@ class Textblock(models.Model):
         Conference,
         on_delete = models.CASCADE,
         related_name = 'Textblocks',
-        default= Conference.get_default_con()
+        default= 1
    )
     title=models.CharField(max_length=280, blank=True, null=True)
     body=models.TextField(blank=True, null=True)
