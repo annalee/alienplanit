@@ -13,7 +13,7 @@
 <h2>{{ title }}</h2>
 <p>{{ body|safe }}</p>
 {% if panelform %}
-<form action="{% url 'panel' %}" method="post">
+<form action="{% url 'panel' conslug=conslug %}" method="post">
     {% csrf_token %}
     {% bootstrap_form panelform %}
     {% buttons %}
